@@ -53,17 +53,16 @@ export class TypeGraphQLContext<TMessageIds extends string, TOptions extends rea
     };
   }
 
-  getImportedName(node: TSESTree.Decorator): string | null {
-    const callee = (node.expression as TSESTree.CallExpression).callee;
-    if (callee.type === AST_NODE_TYPES.Identifier) {
+  getImportedName(node: TSESTree.Node): string | null {
+    if (node.type === AST_NODE_TYPES.Identifier) {
       // E.g. @ObjectType()
-      return this.imports[callee.name] ?? null;
+      return this.imports[node.name] ?? null;
     } else if (
-      callee.type === AST_NODE_TYPES.MemberExpression &&
-      this.imports[(callee.object as TSESTree.Identifier).name] === '*'
+      node.type === AST_NODE_TYPES.MemberExpression &&
+      this.imports[(node.object as TSESTree.Identifier).name] === '*'
     ) {
       // E.g. @TypeGraphQL.ObjectType()
-      return (callee.property as TSESTree.Identifier).name;
+      return (node.property as TSESTree.Identifier).name;
     }
 
     return null;

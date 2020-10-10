@@ -1,24 +1,11 @@
-import { AST_NODE_TYPES, ParserServices, TSESTree } from '@typescript-eslint/experimental-utils';
+import { ParserServices, TSESTree } from '@typescript-eslint/experimental-utils';
 import { RuleContext, RuleFunction, RuleListener } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
-import { Type, TypeChecker } from 'typescript';
+import { TypeChecker } from 'typescript';
+import { DecoratedProps, getDecoratedProps } from './decoratedValue';
+import { DecoratorProps, getDecoratorProps } from './decoratorValue';
 import { TypeGraphQLContext } from './TypeGraphQLContext';
 
-const OPERATION_DECORATORS: string[] = ['Mutation', 'Query', 'Subscription'];
-const ARG_DECORATOR = 'Arg';
-const ARGS_DECORATOR = 'Args';
-const FIELD_DECORATOR = 'Field';
-const ALL_DECORATORS = [...OPERATION_DECORATORS, ARG_DECORATOR, ARGS_DECORATOR, FIELD_DECORATOR];
-
-type DecoratorReporterFn = (props: {
-  decoratorName: string;
-  decoratorType: Type | null;
-  decoratedType: null;
-  decoratorNode: TSESTree.Decorator;
-}) => void;
-
-export function decoratorHasName(decoratorName: string): boolean {
-  return decoratorName === ARG_DECORATOR;
-}
+type DecoratorReporterFn = (props: { decoratorProps: DecoratorProps; decoratedProps: DecoratedProps }) => void;
 
 function getTypeGraphQLDecoratorVisitor<TMessageIds extends string, TOptions extends readonly unknown[]>(
   typeGraphQLContext: TypeGraphQLContext<TMessageIds, TOptions>,
@@ -26,42 +13,17 @@ function getTypeGraphQLDecoratorVisitor<TMessageIds extends string, TOptions ext
   parserServices: ParserServices,
   reporter: DecoratorReporterFn
 ): RuleFunction<TSESTree.Decorator> {
-  return (node) => {
-    const decoratorName = typeGraphQLContext.getImportedName(node);
-    if (!decoratorName || !ALL_DECORATORS.includes(decoratorName)) {
-      // This is now a known TypeGraphQL decorator
+  return (decoratorNode) => {
+    const decoratorProps = getDecoratorProps({ node: decoratorNode, typeGraphQLContext });
+    if (!decoratorProps) {
+      // Not a TypeGraphQL decorator, ignore
       return;
     }
 
-    const typeFunctionIndex = decoratorHasName(decoratorName) ? 1 : 0;
+    const decoratedProps = getDecoratedProps({ decoratorNode, checker, parserServices });
 
-    const decoratorType = getDecoratorType(
-      (node.expression as TSESTree.CallExpression).arguments[typeFunctionIndex],
-      checker,
-      parserServices
-    );
-
-    reporter({ decoratorNode: node, decoratorName, decoratedType: null, decoratorType });
+    reporter({ decoratorProps, decoratedProps });
   };
-}
-
-function getDecoratorType(
-  typeFunctionNode: TSESTree.Expression,
-  checker: TypeChecker,
-  parserServices: ParserServices
-): Type | null {
-  if (
-    typeFunctionNode.type !== AST_NODE_TYPES.ArrowFunctionExpression &&
-    typeFunctionNode.type !== AST_NODE_TYPES.FunctionExpression
-  ) {
-    return null;
-  }
-
-  const tsNode = parserServices.esTreeNodeToTSNodeMap.get(typeFunctionNode.body);
-  const type = checker.getTypeAtLocation(tsNode);
-  // console.log(type);
-
-  return type;
 }
 
 export function getTypeGraphQLVisitors<TMessageIds extends string, TOptions extends readonly unknown[]>(

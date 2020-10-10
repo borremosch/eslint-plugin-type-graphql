@@ -21,15 +21,16 @@ ruleTester.run('no-missing-decorator-type', rule, {
       code: `
       import * as TypeGraphQL from 'type-graphql';
       import { Field as MyField } from 'type-graphql';
+
       @TypeGraphQL.ObjectType()
       class MyClass{
-        @MyField({option1: 'value'})
+        @MyField()
         myNumber!: number;
       }`,
       errors: [
         {
           messageId: 'missingDecoratorType',
-          line: 6,
+          line: 7,
           column: 9,
         },
       ],
