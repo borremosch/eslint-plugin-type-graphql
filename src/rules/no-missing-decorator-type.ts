@@ -1,7 +1,7 @@
 import * as util from '../util';
 import { getTypeGraphQLVisitors } from '../util/typeGraphQLUtil';
 
-type Options = [];
+type Options = ['nontrivial' | 'nontrivial-and-number' | 'all'];
 type MessageIds = 'missingDecoratorType';
 
 export default util.createRule<Options, MessageIds>({
@@ -16,18 +16,35 @@ export default util.createRule<Options, MessageIds>({
     messages: {
       missingDecoratorType: 'This decorator does not explicitly specify a type',
     },
-    schema: [],
+    schema: [
+      {
+        type: 'string',
+        enum: ['nontrivial', 'nontrivial-and-number', 'all'],
+      },
+    ],
     type: 'problem',
   },
-  defaultOptions: [],
-  create(context) {
+  defaultOptions: ['nontrivial-and-number'],
+  create(context, [strictness]) {
     const parserServices = util.getParserServices(context);
     const checker = parserServices.program.getTypeChecker();
 
     return getTypeGraphQLVisitors(context, checker, parserServices, ({ decoratorProps, decoratedProps }) => {
-      console.log(decoratedProps);
+      // Check whether this decorator type is erroneous
+      if (!decoratedProps.type || decoratorProps.type) {
+        return;
+      }
 
-      if (!decoratorProps.type) {
+      // Get properties of decorated type
+      const isNonTrivial =
+        decoratedProps.type.isPromise ||
+        decoratedProps.type.isArray ||
+        decoratedProps.type.isNullable ||
+        decoratedProps.type.isUndefinable;
+      const isNumber = decoratedProps.type.name === 'number';
+
+      // Throw error depending on options
+      if (isNonTrivial || strictness === 'all' || (strictness === 'nontrivial-and-number' && isNumber)) {
         context.report({
           node: decoratorProps.node,
           messageId: 'missingDecoratorType',

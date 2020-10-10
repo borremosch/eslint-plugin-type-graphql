@@ -121,7 +121,6 @@ function getNullablePropertyValue(optionsObject: TSESTree.Expression | undefined
   }
 
   for (const property of optionsObject.properties) {
-    console.log(property);
     if (
       property.type !== AST_NODE_TYPES.Property ||
       property.key.type !== AST_NODE_TYPES.Identifier ||

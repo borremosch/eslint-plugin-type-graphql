@@ -8,7 +8,7 @@ export interface DecoratedProps {
 }
 
 export interface DecoratedType {
-  typeName: string;
+  name: string;
   isNullable?: boolean;
   isUndefinable?: boolean;
   isArray?: boolean;
@@ -109,32 +109,28 @@ function getDecoratedType(type: Type): DecoratedType | null {
   // Check whether the type is a literal
   if (type.flags === TypeFlags.Number) {
     return {
-      typeName: 'number',
+      name: 'number',
       isNullable,
       isUndefinable,
     };
   } else if (type.flags === TypeFlags.String) {
     return {
-      typeName: 'string',
+      name: 'string',
       isNullable,
       isUndefinable,
     };
-  } else if (type.flags === TypeFlags.Boolean) {
+  } else if (type.flags & TypeFlags.Boolean) {
     return {
-      typeName: 'boolean',
+      name: 'boolean',
       isNullable,
       isUndefinable,
     };
   }
 
   // Check whether the type is an object or enum
-  if (
-    type.flags === (TypeFlags.Union | TypeFlags.EnumLiteral) ||
-    type.flags === TypeFlags.TypeParameter ||
-    type.flags === TypeFlags.Object
-  ) {
+  if (type.flags & TypeFlags.EnumLiteral || type.flags === TypeFlags.TypeParameter || type.flags === TypeFlags.Object) {
     return {
-      typeName: type.symbol.name,
+      name: type.symbol.name,
       isNullable,
       isUndefinable,
     };
