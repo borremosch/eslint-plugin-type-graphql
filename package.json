@@ -1,0 +1,55 @@
+{
+  "name": "eslint-plugin-type-graphql",
+  "version": "0.1.0",
+  "description": "Linter for TypeGraphQL decorators",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/borremosch/eslint-plugin-type-graphql.git"
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "test": "jest --coverage"
+  },
+  "keywords": [
+    "ESLint",
+    "TypeGraphQL"
+  ],
+  "engines": {
+    "node": "^10.12.0 || >=12.0.0"
+  },
+  "author": "Borre Mosch",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/borremosch/eslint-plugin-type-graphql/issues"
+  },
+  "homepage": "https://github.com/borremosch/eslint-plugin-type-graphql#readme",
+  "devDependencies": {
+    "@types/node": "^14.11.5",
+    "@typescript-eslint/eslint-plugin": "^4.4.0",
+    "@typescript-eslint/parser": "^4.4.0",
+    "eslint": "^7.10.0",
+    "husky": "^4.3.0",
+    "jest": "^26.5.2",
+    "lint-staged": "^10.4.0",
+    "prettier": "^2.1.2",
+    "ts-jest": "^26.4.1",
+    "typescript": "^4.0.3"
+  },
+  "peerDependencies": {
+    "@typescript-eslint/parser": "^4.0.0",
+    "eslint": "^5.0.0 || ^6.0.0 || ^7.0.0"
+  },
+  "dependencies": {
+    "@typescript-eslint/experimental-utils": "^4.4.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.ts": "eslint --cache --fix",
+    "*.{js,ts,md}": "prettier --write"
+  }
+}
