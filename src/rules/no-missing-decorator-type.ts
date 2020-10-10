@@ -24,7 +24,9 @@ export default util.createRule<Options, MessageIds>({
     const parserServices = util.getParserServices(context);
     const checker = parserServices.program.getTypeChecker();
 
-    return getTypeGraphQLVisitors(context, checker, parserServices, ({ decoratorProps }) => {
+    return getTypeGraphQLVisitors(context, checker, parserServices, ({ decoratorProps, decoratedProps }) => {
+      console.log(decoratedProps);
+
       if (!decoratorProps.type) {
         context.report({
           node: decoratorProps.node,

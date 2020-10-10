@@ -1,5 +1,5 @@
 import { AST_NODE_TYPES, ParserServices, TSESTree } from '@typescript-eslint/experimental-utils';
-import { Type, TypeFlags, TypeChecker } from 'typescript';
+import { Type, UnionType, TypeFlags, TypeChecker } from 'typescript';
 
 export interface DecoratedProps {
   name: string;
@@ -15,7 +15,6 @@ export interface DecoratedType {
   isArrayNullable?: boolean;
   isArrayUndefinable?: boolean;
   isPromise?: boolean;
-  isTooComplex?: boolean;
 }
 
 interface GetDecoratedTypeProps {
@@ -45,11 +44,99 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
 }
 
 function getDecoratedType(type: Type): DecoratedType | null {
-  if (type.flags === TypeFlags.Number || type.flags === TypeFlags.String || type.flags === TypeFlags.Boolean) {
-    // Simple literal type
-    // console.log(type);
+  // Check wheter the type is a promise
+  if (type.flags === TypeFlags.Object && type.symbol.escapedName === 'Promise') {
+    const typeArguments = ((type as unknown) as { resolvedTypeArguments?: Type[] }).resolvedTypeArguments;
+    if (typeArguments?.length !== 1) {
+      return null;
+    }
+
+    const innerType = getDecoratedType(typeArguments[0]);
+    return innerType
+      ? {
+          ...innerType,
+          isPromise: true,
+        }
+      : null;
+  }
+
+  // Check whether the type is nullable or undefinable
+  let isNullable = false;
+  let isUndefinable = false;
+
+  if (type.flags === TypeFlags.Union) {
+    const innerTypes = (type as UnionType).types;
+
+    for (let i = innerTypes.length - 1; i >= 0; i--) {
+      if (innerTypes[i].flags === TypeFlags.Null) {
+        isNullable = true;
+        innerTypes.splice(i, 1);
+      } else if (innerTypes[i].flags === TypeFlags.Undefined) {
+        isUndefinable = true;
+        innerTypes.splice(i, 1);
+      }
+    }
+
+    if (innerTypes.length !== 1) {
+      // Union types are not supported
+      return null;
+    }
+
+    type = innerTypes[0];
+  }
+
+  // Check whether the type is an array
+  if (type.flags === TypeFlags.Object && type.symbol.name === 'Array') {
+    const typeArguments = ((type as unknown) as { resolvedTypeArguments?: Type[] }).resolvedTypeArguments;
+    if (typeArguments?.length !== 1) {
+      return null;
+    }
+
+    const innerType = getDecoratedType(typeArguments[0]);
+    if (!innerType || innerType.isPromise || innerType.isArray) {
+      // Inner type is invalid or types are nested in an unsupported way
+      return null;
+    }
+
     return {
-      typeName: 'Number',
+      ...innerType,
+      isArray: true,
+      isArrayNullable: isNullable,
+      isArrayUndefinable: isUndefinable,
+    };
+  }
+
+  // Check whether the type is a literal
+  if (type.flags === TypeFlags.Number) {
+    return {
+      typeName: 'number',
+      isNullable,
+      isUndefinable,
+    };
+  } else if (type.flags === TypeFlags.String) {
+    return {
+      typeName: 'string',
+      isNullable,
+      isUndefinable,
+    };
+  } else if (type.flags === TypeFlags.Boolean) {
+    return {
+      typeName: 'boolean',
+      isNullable,
+      isUndefinable,
+    };
+  }
+
+  // Check whether the type is an object or enum
+  if (
+    type.flags === (TypeFlags.Union | TypeFlags.EnumLiteral) ||
+    type.flags === TypeFlags.TypeParameter ||
+    type.flags === TypeFlags.Object
+  ) {
+    return {
+      typeName: type.symbol.name,
+      isNullable,
+      isUndefinable,
     };
   }
 
