@@ -1,8 +1,8 @@
 import { ParserServices, TSESTree } from '@typescript-eslint/experimental-utils';
 import { RuleContext, RuleFunction, RuleListener } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
 import { TypeChecker } from 'typescript';
-import { DecoratedProps, getDecoratedProps } from './decoratedValue';
-import { DecoratorProps, getDecoratorProps } from './decoratorValue';
+import { DecoratedProps, DecoratedType, getDecoratedProps } from './decoratedValue';
+import { DecoratorProps, ValidDecoratorType, getDecoratorProps } from './decoratorValue';
 import { TypeGraphQLContext } from './TypeGraphQLContext';
 
 type DecoratorReporterFn = (props: { decoratorProps: DecoratorProps; decoratedProps: DecoratedProps }) => void;
@@ -38,4 +38,61 @@ export function getTypeGraphQLVisitors<TMessageIds extends string, TOptions exte
   visitors.dec;
 
   return visitors;
+}
+
+interface FoundTypeGraphQLDecoratorSignature {
+  typeFunction: string;
+  nullableOption: string | undefined;
+}
+export function getTypeGraphQLDecoratorSignature(type: ValidDecoratorType): FoundTypeGraphQLDecoratorSignature {
+  return {
+    typeFunction: getTypeFunction(type),
+    nullableOption: getNullableOption(type),
+  };
+}
+
+function getTypeFunction(type: ValidDecoratorType | DecoratedType): string {
+  let typeFunctionBody = type.name;
+  if (type.isArray) {
+    typeFunctionBody = '[' + typeFunctionBody + ']';
+  }
+
+  return `() => ${typeFunctionBody}`;
+}
+
+function getNullableOption(type: ValidDecoratorType | DecoratedType): string | undefined {
+  if (type.isArray) {
+    if (type.isArrayNullable || (type as DecoratedType).isArrayUndefinable) {
+      if (type.isNullable || (type as DecoratedType).isUndefinable) {
+        return "{ nullable: 'itemsAndList' }";
+      }
+      return '{ nullable: true }';
+    } else if (type.isNullable || (type as DecoratedType).isUndefinable) {
+      return "{ nullable: 'items' }";
+    }
+  } else if (type.isNullable || (type as DecoratedType).isUndefinable) {
+    return '{ nullable: true }';
+  }
+
+  return undefined;
+}
+
+const EXPECTED_TYPE_NAME_MAP: { [key: string]: string[] } = {
+  number: ['Int', 'Float'],
+  string: ['String'],
+  boolean: ['Boolean'],
+  Date: ['Date', 'String'],
+};
+
+interface ExpectedTypeGraphQLDecoratorSignature {
+  typeFunctions: string[];
+  nullableOption: string | undefined;
+}
+export function getExpectedTypeGraphQLSignatures(type: DecoratedType): ExpectedTypeGraphQLDecoratorSignature {
+  const expectedTypeNames = EXPECTED_TYPE_NAME_MAP[type.name] || [type.name];
+
+  return {
+    typeFunctions: expectedTypeNames.map((expectedTypeName) => getTypeFunction({ ...type, name: expectedTypeName })),
+    nullableOption: getNullableOption(type),
+  };
 }

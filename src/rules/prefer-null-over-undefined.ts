@@ -10,7 +10,7 @@ export default util.createRule<Options, MessageIds>({
     docs: {
       description: 'Warns when undefined is used in a type that is decorated with a TypeGraphQL decorator',
       category: 'Best Practices',
-      recommended: 'error',
+      recommended: 'warn',
       requiresTypeChecking: true,
     },
     messages: {

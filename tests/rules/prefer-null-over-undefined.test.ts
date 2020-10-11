@@ -39,6 +39,7 @@ ruleTester.run('prefer-null-over-undefined', rule, {
     createObjectType('@Field()\nmyArray!: Array<string | null>;'),
     createObjectType('@Field()\nmyArray!: Array<string> | null;'),
     createObjectType('@Field()\nmyArray!: Array<string | null> | null;'),
+    createObjectType('@Field()\nmyArray!: string | number | undefined;'), // Decorated type is not expressable in GraphQL. Handled by other rule
   ],
   invalid: [
     {

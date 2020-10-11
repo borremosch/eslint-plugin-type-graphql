@@ -20,9 +20,9 @@ export interface DecoratorProps {
 
 export type DecoratorType = ValidDecoratorType | InvalidDecoratorType;
 
-interface ValidDecoratorType {
+export interface ValidDecoratorType {
   isValid: true;
-  typeName: string;
+  name: string;
   isNullable?: boolean;
   isArray?: boolean;
   isArrayNullable?: boolean;
@@ -100,7 +100,7 @@ function getDecoratorType<TMessageIds extends string, TOptions extends readonly 
 
   return {
     isValid: true,
-    typeName: name,
+    name: name,
     isNullable:
       (!isArray && nullablePropertyValue === true) ||
       nullablePropertyValue === 'itemsAndList' ||
