@@ -1,4 +1,3 @@
-import { InvalidTestCase } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
 import { indent } from './util';
 
 export const CREATE_OBJECT_TYPE_CODE_LINE_OFFSET = 5;

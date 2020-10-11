@@ -15,6 +15,5 @@
     "plugins": [
         "@typescript-eslint"
     ],
-    "rules": {
-    }
+    "ignorePatterns": "jest.config.js"
 }

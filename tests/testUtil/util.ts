@@ -1,4 +1,4 @@
-export function indent(str: string, indentNum: number, indentFirst = false) {
+export function indent(str: string, indentNum: number, indentFirst = false): string {
   const indentStr = Array(indentNum).fill(' ').join('');
 
   return str

@@ -6,7 +6,7 @@ import {
   createObjectType,
   CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
   CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET,
-} from '../util/objectType';
+} from '../testUtil/objectType';
 
 const rootDir = path.resolve(__dirname, '../fixtures');
 

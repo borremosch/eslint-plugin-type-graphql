@@ -9,7 +9,8 @@
   },
   "scripts": {
     "build": "tsc -b tsconfig.json",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "lint": "eslint"
   },
   "keywords": [
     "ESLint",
@@ -52,7 +53,7 @@
     }
   },
   "lint-staged": {
-    "src/**/*.ts": "eslint --cache --fix",
+    "src/**/*.ts": "eslint --strict --cache --fix",
     "*.{js,ts,md}": "prettier --write"
   }
 }
