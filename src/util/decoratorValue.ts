@@ -30,6 +30,9 @@ export interface ValidDecoratorType {
 
 interface InvalidDecoratorType {
   isValid: false;
+  multiElementArray?: boolean;
+  invalidTypeFunction?: boolean;
+  invalidNullableValue?: string;
 }
 
 interface GetDecoratorTypeProps<TMessageIds extends string, TOptions extends readonly unknown[]> {
@@ -74,7 +77,7 @@ function getDecoratorType<TMessageIds extends string, TOptions extends readonly 
   if (typeNode.type === AST_NODE_TYPES.ArrayExpression) {
     if (typeNode.elements.length !== 1) {
       // Array must have precisely one element
-      return { isValid: false };
+      return { isValid: false, multiElementArray: true };
     }
     typeNode = typeNode.elements[0];
     isArray = true;
@@ -86,7 +89,7 @@ function getDecoratorType<TMessageIds extends string, TOptions extends readonly 
   }
 
   if (!name) {
-    return { isValid: false };
+    return { isValid: false, invalidTypeFunction: true };
   }
 
   const nullablePropertyValue = getNullablePropertyValue(
@@ -95,7 +98,7 @@ function getDecoratorType<TMessageIds extends string, TOptions extends readonly 
 
   if ((nullablePropertyValue === 'items' || nullablePropertyValue === 'itemsAndList') && !isArray) {
     // these nullable properties are only available on arrays
-    return { isValid: false };
+    return { isValid: false, invalidNullableValue: nullablePropertyValue };
   }
 
   return {

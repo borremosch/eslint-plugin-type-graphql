@@ -1,4 +1,4 @@
-# Warns when the decorator is incompatible with the decorated type<br/>(`wrong-decorator-type`)
+# Warns when the decorator is incompatible with the decorated type<br/>(`wrong-decorator-signature`)
 
 ## Rule Details
 
