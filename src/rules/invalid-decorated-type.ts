@@ -2,19 +2,19 @@ import * as util from '../util';
 import { getTypeGraphQLVisitors } from '../util/typeGraphQLUtil';
 
 type Options = [];
-type MessageIds = 'preferNullOverUndefined';
+type MessageIds = 'invalidDecoratedType';
 
 export default util.createRule<Options, MessageIds>({
-  name: 'prefer-null-over-undefined',
+  name: 'wrong-decorator-signature',
   meta: {
     docs: {
-      description: 'Warns when undefined is used in a type that is decorated with a TypeGraphQL decorator',
-      category: 'Best Practices',
-      recommended: 'warn',
+      description: 'Warns when a TypeGraphQL decorated type is too complex to be expressed in GraphQL.',
+      category: 'Possible Errors',
+      recommended: 'error',
       requiresTypeChecking: true,
     },
     messages: {
-      preferNullOverUndefined: 'Prefer null over undefined in types that are exposed in the GraphQL schema',
+      invalidDecoratedType: 'Decorated type is too complex to be expressed in GraphQL',
     },
     schema: [],
     type: 'problem',
@@ -25,16 +25,15 @@ export default util.createRule<Options, MessageIds>({
     const checker = parserServices.program.getTypeChecker();
 
     return getTypeGraphQLVisitors(context, checker, parserServices, ({ decoratorProps, decoratedProps }) => {
-      // Check whether the decorated type is known and valid
-      if (!decoratedProps.type?.isValid) {
+      // Check whether the decorated type is too complex
+      if (!decoratedProps.type || decoratedProps.type.isValid) {
         return;
       }
 
-      if (decoratedProps.type.isUndefinable || decoratedProps.type.isArrayUndefinable) {
-        // This type uses undefined
+      if (decoratedProps.type.tooComplex) {
         context.report({
           node: decoratorProps.node,
-          messageId: 'preferNullOverUndefined',
+          messageId: 'invalidDecoratedType',
         });
       }
     });

@@ -39,7 +39,7 @@ export default util.createRule<Options, MessageIds>({
 
     return getTypeGraphQLVisitors(context, checker, parserServices, ({ decoratorProps, decoratedProps }) => {
       // Check that both the decorator and decorated type are known
-      if (!decoratorProps.type?.isValid || !decoratedProps.type) {
+      if (!decoratorProps.type?.isValid || !decoratedProps.type?.isValid) {
         return;
       }
 

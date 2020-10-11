@@ -1,7 +1,7 @@
 import { ParserServices, TSESTree } from '@typescript-eslint/experimental-utils';
 import { RuleContext, RuleFunction, RuleListener } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
 import { TypeChecker } from 'typescript';
-import { DecoratedProps, DecoratedType, getDecoratedProps } from './decoratedValue';
+import { DecoratedProps, getDecoratedProps, ValidDecoratedType } from './decoratedValue';
 import { DecoratorProps, ValidDecoratorType, getDecoratorProps } from './decoratorValue';
 import { TypeGraphQLContext } from './TypeGraphQLContext';
 
@@ -51,7 +51,7 @@ export function getTypeGraphQLDecoratorSignature(type: ValidDecoratorType): Foun
   };
 }
 
-function getTypeFunction(type: ValidDecoratorType | DecoratedType): string {
+function getTypeFunction(type: ValidDecoratorType | ValidDecoratedType): string {
   let typeFunctionBody = type.name;
   if (type.isArray) {
     typeFunctionBody = '[' + typeFunctionBody + ']';
@@ -60,17 +60,17 @@ function getTypeFunction(type: ValidDecoratorType | DecoratedType): string {
   return `() => ${typeFunctionBody}`;
 }
 
-function getNullableOption(type: ValidDecoratorType | DecoratedType): string | undefined {
+function getNullableOption(type: ValidDecoratorType | ValidDecoratedType): string | undefined {
   if (type.isArray) {
-    if (type.isArrayNullable || (type as DecoratedType).isArrayUndefinable) {
-      if (type.isNullable || (type as DecoratedType).isUndefinable) {
+    if (type.isArrayNullable || (type as ValidDecoratedType).isArrayUndefinable) {
+      if (type.isNullable || (type as ValidDecoratedType).isUndefinable) {
         return "{ nullable: 'itemsAndList' }";
       }
       return '{ nullable: true }';
-    } else if (type.isNullable || (type as DecoratedType).isUndefinable) {
+    } else if (type.isNullable || (type as ValidDecoratedType).isUndefinable) {
       return "{ nullable: 'items' }";
     }
-  } else if (type.isNullable || (type as DecoratedType).isUndefinable) {
+  } else if (type.isNullable || (type as ValidDecoratedType).isUndefinable) {
     return '{ nullable: true }';
   }
 
@@ -88,7 +88,7 @@ interface ExpectedTypeGraphQLDecoratorSignature {
   typeFunctions: string[];
   nullableOption: string | undefined;
 }
-export function getExpectedTypeGraphQLSignatures(type: DecoratedType): ExpectedTypeGraphQLDecoratorSignature {
+export function getExpectedTypeGraphQLSignatures(type: ValidDecoratedType): ExpectedTypeGraphQLDecoratorSignature {
   const expectedTypeNames = EXPECTED_TYPE_NAME_MAP[type.name] || [type.name];
 
   return {

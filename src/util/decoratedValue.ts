@@ -7,7 +7,10 @@ export interface DecoratedProps {
   type: DecoratedType | null;
 }
 
-export interface DecoratedType {
+export type DecoratedType = ValidDecoratedType | InvalidDecoratedType;
+
+export interface ValidDecoratedType {
+  isValid: true;
   name: string;
   isNullable?: boolean;
   isUndefinable?: boolean;
@@ -15,6 +18,11 @@ export interface DecoratedType {
   isArrayNullable?: boolean;
   isArrayUndefinable?: boolean;
   isPromise?: boolean;
+}
+
+export interface InvalidDecoratedType {
+  isValid: false;
+  tooComplex?: boolean;
 }
 
 interface GetDecoratedTypeProps {
@@ -52,12 +60,13 @@ function getDecoratedType(type: Type): DecoratedType | null {
     }
 
     const innerType = getDecoratedType(typeArguments[0]);
-    return innerType
-      ? {
-          ...innerType,
-          isPromise: true,
-        }
-      : null;
+    if (!innerType?.isValid) {
+      return innerType;
+    }
+    return {
+      ...innerType,
+      isPromise: true,
+    };
   }
 
   // Check whether the type is nullable or undefinable
@@ -79,7 +88,10 @@ function getDecoratedType(type: Type): DecoratedType | null {
 
     if (innerTypes.length !== 1) {
       // Union types are not supported
-      return null;
+      return {
+        isValid: false,
+        tooComplex: true,
+      };
     }
 
     type = innerTypes[0];
@@ -93,9 +105,15 @@ function getDecoratedType(type: Type): DecoratedType | null {
     }
 
     const innerType = getDecoratedType(typeArguments[0]);
-    if (!innerType || innerType.isPromise || innerType.isArray) {
-      // Inner type is invalid or types are nested in an unsupported way
+    if (!innerType) {
       return null;
+    }
+    if (!innerType.isValid || innerType.isPromise || innerType.isArray) {
+      // Inner type is invalid or types are nested in an unsupported way
+      return {
+        isValid: false,
+        tooComplex: true,
+      };
     }
 
     return {
@@ -109,18 +127,21 @@ function getDecoratedType(type: Type): DecoratedType | null {
   // Check whether the type is a literal
   if (type.flags === TypeFlags.Number) {
     return {
+      isValid: true,
       name: 'number',
       isNullable,
       isUndefinable,
     };
   } else if (type.flags === TypeFlags.String) {
     return {
+      isValid: true,
       name: 'string',
       isNullable,
       isUndefinable,
     };
   } else if (type.flags & TypeFlags.Boolean) {
     return {
+      isValid: true,
       name: 'boolean',
       isNullable,
       isUndefinable,
@@ -130,11 +151,16 @@ function getDecoratedType(type: Type): DecoratedType | null {
   // Check whether the type is an object or enum
   if (type.flags & TypeFlags.EnumLiteral || type.flags === TypeFlags.TypeParameter || type.flags === TypeFlags.Object) {
     return {
+      isValid: true,
       name: type.symbol.name,
       isNullable,
       isUndefinable,
     };
   }
 
-  return null;
+  // Other types are unsupported
+  return {
+    isValid: false,
+    tooComplex: true,
+  };
 }

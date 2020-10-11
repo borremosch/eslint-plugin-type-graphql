@@ -31,7 +31,7 @@ export default util.createRule<Options, MessageIds>({
 
     return getTypeGraphQLVisitors(context, checker, parserServices, ({ decoratorProps, decoratedProps }) => {
       // Check whether this decorator type is erroneous
-      if (!decoratedProps.type || decoratorProps.type) {
+      if (!decoratedProps.type?.isValid || decoratorProps.type) {
         return;
       }
 
