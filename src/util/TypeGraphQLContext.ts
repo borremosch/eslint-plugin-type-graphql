@@ -1,16 +1,11 @@
-import { RuleContext, RuleListener } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
+import { RuleListener } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
 import { getNameFromCommonJsRequire } from './import';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/types';
 
 const TYPE_GRAPHQL_PACKAGE_NAME = 'type-graphql';
 
-export class TypeGraphQLContext<TMessageIds extends string, TOptions extends readonly unknown[]> {
-  context: Readonly<RuleContext<TMessageIds, TOptions>>;
+export class TypeGraphQLContext {
   imports: { [key: string]: string } = {};
-
-  constructor(context: Readonly<RuleContext<TMessageIds, TOptions>>) {
-    this.context = context;
-  }
 
   getImportVisitors(): RuleListener {
     return {

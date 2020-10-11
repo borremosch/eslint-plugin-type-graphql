@@ -35,14 +35,11 @@ interface InvalidDecoratorType {
   invalidNullableValue?: string;
 }
 
-interface GetDecoratorTypeProps<TMessageIds extends string, TOptions extends readonly unknown[]> {
+interface GetDecoratorTypeProps {
   node: TSESTree.Decorator;
-  typeGraphQLContext: TypeGraphQLContext<TMessageIds, TOptions>;
+  typeGraphQLContext: TypeGraphQLContext;
 }
-export function getDecoratorProps<TMessageIds extends string, TOptions extends readonly unknown[]>({
-  node,
-  typeGraphQLContext,
-}: GetDecoratorTypeProps<TMessageIds, TOptions>): DecoratorProps | null {
+export function getDecoratorProps({ node, typeGraphQLContext }: GetDecoratorTypeProps): DecoratorProps | null {
   const name = typeGraphQLContext.getImportedName((node.expression as TSESTree.CallExpression).callee);
   if (!name || !ALL_DECORATORS.includes(name)) {
     // This is now a known TypeGraphQL decorator
@@ -56,10 +53,10 @@ export function getDecoratorProps<TMessageIds extends string, TOptions extends r
   };
 }
 
-function getDecoratorType<TMessageIds extends string, TOptions extends readonly unknown[]>(
+function getDecoratorType(
   decoratorName: string,
   node: TSESTree.Decorator,
-  typeGraphQLContext: TypeGraphQLContext<TMessageIds, TOptions>
+  typeGraphQLContext: TypeGraphQLContext
 ): DecoratorType | undefined {
   const typeFunctionIndex = decoratorHasName(decoratorName) ? 1 : 0;
   const typeFunctionNode = (node.expression as TSESTree.CallExpression).arguments[typeFunctionIndex];

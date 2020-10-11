@@ -1,5 +1,5 @@
 import { ParserServices, TSESTree } from '@typescript-eslint/experimental-utils';
-import { RuleContext, RuleFunction, RuleListener } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
+import { RuleFunction, RuleListener } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
 import { TypeChecker } from 'typescript';
 import { DecoratedProps, getDecoratedProps, ValidDecoratedType } from './decoratedValue';
 import { DecoratorProps, ValidDecoratorType, getDecoratorProps } from './decoratorValue';
@@ -7,8 +7,8 @@ import { TypeGraphQLContext } from './TypeGraphQLContext';
 
 type DecoratorReporterFn = (props: { decoratorProps: DecoratorProps; decoratedProps: DecoratedProps }) => void;
 
-function getTypeGraphQLDecoratorVisitor<TMessageIds extends string, TOptions extends readonly unknown[]>(
-  typeGraphQLContext: TypeGraphQLContext<TMessageIds, TOptions>,
+function getTypeGraphQLDecoratorVisitor(
+  typeGraphQLContext: TypeGraphQLContext,
   checker: TypeChecker,
   parserServices: ParserServices,
   reporter: DecoratorReporterFn
@@ -26,13 +26,12 @@ function getTypeGraphQLDecoratorVisitor<TMessageIds extends string, TOptions ext
   };
 }
 
-export function getTypeGraphQLVisitors<TMessageIds extends string, TOptions extends readonly unknown[]>(
-  context: Readonly<RuleContext<TMessageIds, TOptions>>,
+export function getTypeGraphQLVisitors(
   checker: TypeChecker,
   parserServices: ParserServices,
   reporter: DecoratorReporterFn
 ): RuleListener {
-  const typeGraphQLContext = new TypeGraphQLContext(context);
+  const typeGraphQLContext = new TypeGraphQLContext();
   const visitors = typeGraphQLContext.getImportVisitors();
   visitors.Decorator = getTypeGraphQLDecoratorVisitor(typeGraphQLContext, checker, parserServices, reporter);
   visitors.dec;
