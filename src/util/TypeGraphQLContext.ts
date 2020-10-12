@@ -27,7 +27,11 @@ export class TypeGraphQLContext {
         }
       },
       VariableDeclarator: ({ init, id }) => {
-        const source = getNameFromCommonJsRequire(init as TSESTree.CallExpression);
+        if (init?.type !== AST_NODE_TYPES.CallExpression) {
+          return;
+        }
+
+        const source = getNameFromCommonJsRequire(init);
         if (source === TYPE_GRAPHQL_PACKAGE_NAME) {
           if (id.type === AST_NODE_TYPES.Identifier) {
             // E.g. const TypeGraphQL = require('type-graphql');

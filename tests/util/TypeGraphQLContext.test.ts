@@ -75,4 +75,8 @@ describe('TypeGraphQLContext', () => {
   it('should ignore other object deconstructors', () => {
     expect(getResolvedTypeName("const { Field } = norequire('type-graphql')", 'Field')).toEqual(null);
   });
+
+  it('should ignore other variable declarators', () => {
+    expect(getResolvedTypeName("const str = 'value'", 'Field')).toEqual(null);
+  });
 });
