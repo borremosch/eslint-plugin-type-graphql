@@ -34,7 +34,6 @@ export function getTypeGraphQLVisitors(
   const typeGraphQLContext = new TypeGraphQLContext();
   const visitors = typeGraphQLContext.getImportVisitors();
   visitors.Decorator = getTypeGraphQLDecoratorVisitor(typeGraphQLContext, checker, parserServices, reporter);
-  visitors.dec;
 
   return visitors;
 }
