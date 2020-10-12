@@ -76,8 +76,8 @@ function getNullableOption(type: ValidDecoratorType | ValidDecoratedType): strin
 }
 
 const EXPECTED_TYPE_NAME_MAP: { [key: string]: string[] } = {
-  number: ['Int', 'Float'],
-  string: ['String'],
+  number: ['Int', 'Float', 'ID'],
+  string: ['String', 'ID'],
   boolean: ['Boolean'],
   Date: ['Date', 'String'],
 };

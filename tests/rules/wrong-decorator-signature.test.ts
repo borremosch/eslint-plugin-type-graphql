@@ -44,6 +44,8 @@ ruleTester.run('wrong-decorator-signature', rule, {
     createObjectType('@Field(() => Boolean)\nmyBoolean!: boolean;'),
     createObjectType('@Field(() => Int)\nmyInt!: number;'),
     createObjectType('@Field(() => Float)\nmyFloat!: number;'),
+    createObjectType('@Field(() => ID)\nmyID!: string;'),
+    createObjectType('@Field(() => ID)\nmyID!: number;'),
     createObjectType('@Field(() => Date)\nmyDate!: Date;'),
     createObjectType('@Field(() => String)\nmyDate!: Date;'),
     createObjectType("@Field(() => String, { nullable: 'items' })\nmyString!: string"), // <= Decorator is invalid rather than wrong
