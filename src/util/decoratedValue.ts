@@ -35,6 +35,7 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
   const parent = decoratorNode.parent as TSESTree.Node;
   const tsNode = parserServices.esTreeNodeToTSNodeMap.get(parent);
   let type = checker.getTypeAtLocation(tsNode);
+
   if (parent.type === AST_NODE_TYPES.MethodDefinition && parent.kind === 'method') {
     type = type.getCallSignatures()[0].getReturnType();
   }
@@ -69,7 +70,7 @@ function getDecoratedType(type: Type): DecoratedType | null {
   let isUndefinable = false;
 
   if (type.flags === TypeFlags.Union) {
-    const innerTypes = (type as UnionType).types;
+    const innerTypes = [...(type as UnionType).types];
 
     for (let i = innerTypes.length - 1; i >= 0; i--) {
       if (innerTypes[i].flags === TypeFlags.Null) {
