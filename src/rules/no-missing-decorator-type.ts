@@ -43,9 +43,7 @@ export default util.createRule<Options, MessageIds>({
         decoratedProps.type.isPromise ||
         decoratedProps.type.isArray ||
         decoratedProps.type.isNullable ||
-        decoratedProps.type.isUndefinable ||
-        decoratedProps.type.isArrayNullable ||
-        decoratedProps.type.isArrayUndefinable;
+        decoratedProps.type.isArrayNullable;
 
       if (isNonTrivial) {
         // Always report missing nontrivial decorator types
