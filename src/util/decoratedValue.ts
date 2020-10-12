@@ -32,15 +32,14 @@ interface GetDecoratedTypeProps {
 }
 
 export function getDecoratedProps({ decoratorNode, checker, parserServices }: GetDecoratedTypeProps): DecoratedProps {
-  if (!decoratorNode.parent) {
-    throw new Error('Decorator without parent node');
+  const parent = decoratorNode.parent as TSESTree.Node;
+  const tsNode = parserServices.esTreeNodeToTSNodeMap.get(parent);
+  let type = checker.getTypeAtLocation(tsNode);
+  if (parent.type === AST_NODE_TYPES.MethodDefinition && parent.kind === 'method') {
+    type = type.getCallSignatures()[0].getReturnType();
   }
-  const parent = decoratorNode.parent;
 
-  if (parent.type === AST_NODE_TYPES.ClassProperty) {
-    const tsNode = parserServices.esTreeNodeToTSNodeMap.get(parent);
-    const type = checker.getTypeAtLocation(tsNode);
-
+  if (parent.type === AST_NODE_TYPES.ClassProperty || parent.type === AST_NODE_TYPES.MethodDefinition) {
     return {
       name: (parent.key as TSESTree.Identifier).name,
       kind: parent.type,

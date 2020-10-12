@@ -6,7 +6,8 @@ import {
   createObjectType,
   CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
   CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET,
-} from '../testUtil/objectType';
+  createResolver,
+} from '../testUtil/testCode';
 
 const rootDir = path.resolve(__dirname, '../fixtures');
 
@@ -30,6 +31,8 @@ ruleTester.run('invalid-decorator-type', rule, {
     createObjectType('@Field(() => String)\nmyString!: string;'),
     createObjectType('@Field(() => [String])\nmyString!: Array<string | null>;'),
     createObjectType('@Field(() => [String])\nmyString!: Array<string | null> | null;'),
+    createObjectType("@Field(() => [String])\nget myArray(){ return ['value']; }"),
+    createResolver("@Query(() => String)\nmyQuery(){ return 'value'; }", ['Query']),
   ],
   invalid: [
     {
@@ -47,6 +50,12 @@ ruleTester.run('invalid-decorator-type', rule, {
     {
       code: createObjectType("@Field(() => String, { nullable: 'itemsAndList' })\nmyString!: string | null;"),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidNullableValue' }],
+    },
+    {
+      code: createObjectType(
+        "@Field(() => [String, Boolean])\nget myArray(): Array<string | boolean> { return ['value']; }"
+      ),
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'multiElementArray' }],
     },
   ],
 });

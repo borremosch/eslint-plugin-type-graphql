@@ -6,7 +6,8 @@ import {
   createObjectType,
   CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
   CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET,
-} from '../testUtil/objectType';
+  createResolver,
+} from '../testUtil/testCode';
 
 const rootDir = path.resolve(__dirname, '../fixtures');
 
@@ -40,6 +41,8 @@ ruleTester.run('prefer-null-over-undefined', rule, {
     createObjectType('@Field()\nmyArray!: Array<string> | null;'),
     createObjectType('@Field()\nmyArray!: Array<string | null> | null;'),
     createObjectType('@Field()\nmyArray!: string | number | undefined;'), // Decorated type is not expressable in GraphQL. Handled by other rule
+    createObjectType("@Field()\nget myString(){ return 'value'; }"),
+    createResolver("@Query(() => String)\nmyQuery(){ return 'value'; }", ['Query']),
   ],
   invalid: [
     {
@@ -88,6 +91,10 @@ ruleTester.run('prefer-null-over-undefined', rule, {
     },
     {
       code: createObjectType('@Field()\nmyArray?: Array<string | undefined>;'),
+      errors: DEFAULT_ERRORS,
+    },
+    {
+      code: createObjectType("@Field()\nget myString(): string | undefined { return 'value'; }"),
       errors: DEFAULT_ERRORS,
     },
   ],

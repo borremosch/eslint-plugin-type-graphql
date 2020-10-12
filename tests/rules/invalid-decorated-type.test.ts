@@ -4,9 +4,10 @@ import { ESLintUtils } from '@typescript-eslint/experimental-utils';
 const { RuleTester } = ESLintUtils;
 import {
   createObjectType,
+  createResolver,
   CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
   CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET,
-} from '../testUtil/objectType';
+} from '../testUtil/testCode';
 
 const rootDir = path.resolve(__dirname, '../fixtures');
 
@@ -32,6 +33,8 @@ ruleTester.run('invalid-decorated-type', rule, {
     createObjectType("@Field(() => [String], { nullable: 'items' })\nmyString!: Array<string | null>;"),
     createObjectType("@Field(() => [String], { nullable: 'itemsAndList' })\nmyString!: Array<string | null> | null;"),
     createObjectType('@Field(() => [String])\nmyPromisedArray!: Promise<Array<string>>;'),
+    createObjectType("@Field(() => String)\nget myString() { return 'value'; }"),
+    createResolver("@Query(() => String)\nmyQuery(){ return 'value'; }", ['Query']),
   ],
   invalid: [
     {
@@ -44,6 +47,10 @@ ruleTester.run('invalid-decorated-type', rule, {
     },
     {
       code: createObjectType('@Field()\nmyArrayOfArrays!: string[][];'),
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
+    },
+    {
+      code: createObjectType("@Field()\nget myUnion(): string | boolean { return 'value'; }"),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
     },
   ],

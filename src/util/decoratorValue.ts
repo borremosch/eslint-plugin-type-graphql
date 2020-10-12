@@ -112,8 +112,6 @@ function getDecoratorType(
 
 /**
  * Reads nullable property from options object as described here: https://github.com/MichalLytek/type-graphql/blob/master/docs/types-and-fields.md
- * @param isArray
- * @param optionsObject
  */
 function getNullablePropertyValue(optionsObject: TSESTree.Expression | undefined): boolean | NullableListOptions {
   if (optionsObject?.type !== AST_NODE_TYPES.ObjectExpression) {

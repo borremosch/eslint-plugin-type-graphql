@@ -6,7 +6,8 @@ import {
   createObjectType,
   CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
   CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET,
-} from '../testUtil/objectType';
+  createResolver,
+} from '../testUtil/testCode';
 
 const rootDir = path.resolve(__dirname, '../fixtures');
 
@@ -44,6 +45,8 @@ ruleTester.run('wrong-decorator-signature', rule, {
     createObjectType('@Field(() => Date)\nmyDate!: Date;'),
     createObjectType('@Field(() => String)\nmyDate!: Date;'),
     createObjectType("@Field(() => String, { nullable: 'items' })\nmyString!: string"), // <= Decorator is invalid rather than wrong
+    createObjectType("@Field(() => String)\nget myString(){ return 'value'; }"),
+    createResolver("@Query(() => String)\nmyQuery(){ return 'value'; }", ['Query']),
   ],
   invalid: [
     {
@@ -77,6 +80,10 @@ ruleTester.run('wrong-decorator-signature', rule, {
     {
       code: createObjectType("@Field(() => [String], { nullable: 'items' })\nmyString!: string[] | null;"),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'wrongDecoratorNullableOption' }],
+    },
+    {
+      code: createObjectType("@Field(() => Int)\nget myString(){ return 'value'; }"),
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'wrongDecoratorType' }],
     },
   ],
 });

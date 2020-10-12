@@ -6,7 +6,8 @@ import {
   createObjectType,
   CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
   CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET,
-} from '../testUtil/objectType';
+  createResolver,
+} from '../testUtil/testCode';
 
 const rootDir = path.resolve(__dirname, '../fixtures');
 
@@ -34,6 +35,8 @@ ruleTester.run('no-missing-decorator-type', rule, {
     createObjectType('@Field()\nmyBoolean!: boolean;'),
     createObjectType('@Field(() => Int)\nmyNumber!: number;', ['Field', 'Int']),
     createObjectType('@Field(() => String, { nullable: true })\nmyString!: string | null;'),
+    createObjectType("@Field()\nget myString(){ return 'value'; }"),
+    createResolver("@Query(() => String)\nmyQuery(){ return 'value'; }", ['Query']),
   ],
   invalid: [
     {
@@ -42,6 +45,10 @@ ruleTester.run('no-missing-decorator-type', rule, {
     },
     {
       code: createObjectType('@Field()\nmyString!: string | null;'),
+      errors: DEFAULT_ERRORS,
+    },
+    {
+      code: createObjectType('@Field()\nget myNumber(){ return 5; }'),
       errors: DEFAULT_ERRORS,
     },
   ],
