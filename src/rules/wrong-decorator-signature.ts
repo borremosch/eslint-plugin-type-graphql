@@ -27,7 +27,8 @@ export default util.createRule<Options, MessageIds>({
         'Decorator type does not match corresponding TypeScript type. Expected {{ expected }} but found {{ found }}.',
       missingDecoratorNullableOption: 'Decorator options should include {{ expected }}.',
       wrongDecoratorNullableOption: 'Decorator options should specify {{ expected }} but found {{ found }}.',
-      superfluousDecoratorNullableOption: 'Decorator options contains superfluous property {{ found }}.',
+      superfluousDecoratorNullableOption:
+        'Decorator options contains superfluous property {{ found }}. Decorated type is not nullable.',
     },
     schema: [],
     type: 'problem',

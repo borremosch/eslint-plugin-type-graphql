@@ -22,13 +22,10 @@ const ruleTester = new RuleTester({
   parser: '@typescript-eslint/parser',
 });
 
-const DEFAULT_ERRORS = [
-  {
-    messageId: 'missingDecoratorType',
-    line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
-    column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 1,
-  },
-];
+const DEFAULT_ERROR_LOCATION = {
+  line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
+  column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 1,
+};
 
 ruleTester.run('no-missing-decorator-type', rule, {
   valid: [
@@ -44,17 +41,17 @@ ruleTester.run('no-missing-decorator-type', rule, {
   invalid: [
     {
       code: createObjectType('@Field()\nmyNumber!: number;'),
-      errors: DEFAULT_ERRORS,
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'missingNumberDecoratorType' }],
     },
     {
       code: createObjectType('@Field()\nmyString!: string | null;'),
-      errors: DEFAULT_ERRORS,
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'missingNonTrivialDecoratorType' }],
     },
     {
       code: createResolver('@Query()\nmyQuery(){ return 5; }', ['Query']),
       errors: [
         {
-          messageId: 'missingDecoratorType',
+          messageId: 'missingNumberDecoratorType',
           line: CREATE_RESOLVER_CODE_LINE_OFFSET,
           column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 1,
         },
@@ -64,7 +61,7 @@ ruleTester.run('no-missing-decorator-type', rule, {
       code: createResolver("@Query(() => Int)\necho(@Arg('input') input: number){ return input; }", ['Query', 'Arg']),
       errors: [
         {
-          messageId: 'missingDecoratorType',
+          messageId: 'missingNumberDecoratorType',
           line: CREATE_RESOLVER_CODE_LINE_OFFSET + 1,
           column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 6,
         },
@@ -99,12 +96,12 @@ ruleTester.run('no-missing-decorator-type - all', rule, {
     {
       code: createObjectType('@Field()\nmyString!: string;'),
       options: ['all'],
-      errors: DEFAULT_ERRORS,
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'missingDecoratorType' }],
     },
     {
       code: createObjectType('@Field()\nmyBoolean!: boolean;'),
       options: ['all'],
-      errors: DEFAULT_ERRORS,
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'missingDecoratorType' }],
     },
     {
       code:

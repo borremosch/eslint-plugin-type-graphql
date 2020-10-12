@@ -2,7 +2,7 @@ import * as util from '../util';
 import { getTypeGraphQLVisitors } from '../util/typeGraphQLUtil';
 
 type Options = ['nontrivial' | 'nontrivial-and-number' | 'all'];
-type MessageIds = 'missingDecoratorType';
+type MessageIds = 'missingNonTrivialDecoratorType' | 'missingNumberDecoratorType' | 'missingDecoratorType';
 
 export default util.createRule<Options, MessageIds>({
   name: 'no-missing-decorator-type',
@@ -14,6 +14,9 @@ export default util.createRule<Options, MessageIds>({
       requiresTypeChecking: true,
     },
     messages: {
+      missingNonTrivialDecoratorType: 'No type function specified for non-trivial type',
+      missingNumberDecoratorType:
+        'No type function specified for number type (specify TypeGraphQL `Int` or `Float` type)',
       missingDecoratorType: 'This decorator does not explicitly specify a type',
     },
     schema: [
@@ -40,11 +43,27 @@ export default util.createRule<Options, MessageIds>({
         decoratedProps.type.isPromise ||
         decoratedProps.type.isArray ||
         decoratedProps.type.isNullable ||
-        decoratedProps.type.isUndefinable;
-      const isNumber = decoratedProps.type.name === 'number';
+        decoratedProps.type.isUndefinable ||
+        decoratedProps.type.isArrayNullable ||
+        decoratedProps.type.isArrayUndefinable;
 
-      // Throw error depending on options
-      if (isNonTrivial || strictness === 'all' || (strictness === 'nontrivial-and-number' && isNumber)) {
+      if (isNonTrivial) {
+        // Always report missing nontrivial decorator types
+        context.report({
+          node: decoratorProps.node,
+          messageId: 'missingNonTrivialDecoratorType',
+        });
+      } else if (
+        decoratedProps.type.name === 'number' &&
+        (strictness === 'all' || strictness === 'nontrivial-and-number')
+      ) {
+        // Report missing number decorator types based on strictness
+        context.report({
+          node: decoratorProps.node,
+          messageId: 'missingNumberDecoratorType',
+        });
+      } else if (strictness === 'all') {
+        // In most strict mode, report everything
         context.report({
           node: decoratorProps.node,
           messageId: 'missingDecoratorType',
