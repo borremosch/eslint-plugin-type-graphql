@@ -4,6 +4,7 @@ import {
   getTypeGraphQLDecoratorSignature,
   getTypeGraphQLVisitors,
 } from '../util/typeGraphQLUtil';
+import { createDisjunction } from '../util/createDisjunction';
 
 type Options = [];
 type MessageIds =
@@ -52,8 +53,8 @@ export default util.createRule<Options, MessageIds>({
           node: decoratorProps.node,
           messageId: 'wrongDecoratorType',
           data: {
-            expected: expected.typeFunctions.join(' or '),
-            found,
+            expected: createDisjunction(expected.typeFunctions),
+            found: found.typeFunction,
           },
         });
       }
