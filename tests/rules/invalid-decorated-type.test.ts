@@ -46,6 +46,10 @@ ruleTester.run('invalid-decorated-type', rule, {
   ],
   invalid: [
     {
+      code: createObjectType('@Field()\nmyUnion!: unknown;'),
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
+    },
+    {
       code: createObjectType('@Field()\nmyUnion!: string | boolean;'),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
     },
@@ -55,6 +59,10 @@ ruleTester.run('invalid-decorated-type', rule, {
     },
     {
       code: createObjectType('@Field()\nmyArrayOfArrays!: string[][];'),
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
+    },
+    {
+      code: createObjectType('@Field()\nmyArrayOfArrays!: Promise<string[][]>;'),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
     },
     {

@@ -22,6 +22,7 @@ export interface ValidDecoratedType {
 export interface InvalidDecoratedType {
   isValid: false;
   tooComplex?: boolean;
+  unknownType?: boolean;
 }
 
 interface GetDecoratedTypeProps {
@@ -45,13 +46,14 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
 }
 
 function getDecoratedType(type: Type): DecoratedType | null {
+  // Check whether TypeScript was able to determine the type
+  if (type.flags === TypeFlags.Any) {
+    return null;
+  }
+
   // Check wheter the type is a promise
   if (type.flags === TypeFlags.Object && type.symbol.escapedName === 'Promise') {
-    const typeArguments = ((type as unknown) as { resolvedTypeArguments?: Type[] }).resolvedTypeArguments;
-    if (typeArguments?.length !== 1) {
-      return null;
-    }
-
+    const typeArguments = ((type as unknown) as { resolvedTypeArguments: Type[] }).resolvedTypeArguments;
     const innerType = getDecoratedType(typeArguments[0]);
     if (!innerType?.isValid) {
       return innerType;
@@ -92,11 +94,7 @@ function getDecoratedType(type: Type): DecoratedType | null {
 
   // Check whether the type is an array
   if (type.flags === TypeFlags.Object && type.symbol.name === 'Array') {
-    const typeArguments = ((type as unknown) as { resolvedTypeArguments?: Type[] }).resolvedTypeArguments;
-    if (typeArguments?.length !== 1) {
-      return null;
-    }
-
+    const typeArguments = ((type as unknown) as { resolvedTypeArguments: Type[] }).resolvedTypeArguments;
     const innerType = getDecoratedType(typeArguments[0]);
     if (!innerType) {
       return null;
@@ -154,6 +152,6 @@ function getDecoratedType(type: Type): DecoratedType | null {
   // Other types are unsupported
   return {
     isValid: false,
-    tooComplex: true,
+    unknownType: true,
   };
 }

@@ -8,13 +8,13 @@ export default util.createRule<Options, MessageIds>({
   name: 'wrong-decorator-signature',
   meta: {
     docs: {
-      description: 'Warns when a TypeGraphQL decorated type is too complex to be expressed in GraphQL.',
+      description: 'Warns when a TypeGraphQL decorated type is not expressable in GraphQL.',
       category: 'Possible Errors',
       recommended: 'error',
       requiresTypeChecking: true,
     },
     messages: {
-      invalidDecoratedType: 'Decorated type is too complex to be expressed in GraphQL',
+      invalidDecoratedType: 'Decorated type is not expressable in GraphQL',
     },
     schema: [],
     type: 'problem',
@@ -30,12 +30,10 @@ export default util.createRule<Options, MessageIds>({
         return;
       }
 
-      if (decoratedProps.type.tooComplex) {
-        context.report({
-          node: decoratorProps.node,
-          messageId: 'invalidDecoratedType',
-        });
-      }
+      context.report({
+        node: decoratorProps.node,
+        messageId: 'invalidDecoratedType',
+      });
     });
   },
 });
