@@ -7,6 +7,8 @@ import {
   CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
   CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET,
   createResolver,
+  CREATE_RESOLVER_CODE_LINE_OFFSET,
+  CREATE_RESOLVER_CODE_COLUMN_OFFSET,
 } from '../testUtil/testCode';
 
 const rootDir = path.resolve(__dirname, '../fixtures');
@@ -43,6 +45,13 @@ ruleTester.run('prefer-null-over-undefined', rule, {
     createObjectType('@Field()\nmyArray!: string | number | undefined;'), // Decorated type is not expressable in GraphQL. Handled by other rule
     createObjectType("@Field()\nget myString(){ return 'value'; }"),
     createResolver("@Query(() => String)\nmyQuery(){ return 'value'; }", ['Query']),
+    createResolver('@Query(() => String)\necho(@Arg() input: string){ return input; }', ['Query', 'Arg']),
+    createResolver('@Query(() => String)\necho(@Arg() input: string){ return input; }', ['Query', 'Arg']),
+    'class MyArgs{}\n' +
+      createResolver('\n@Query(() => String)\necho(@Args() { input }: MyArgs): string { return input; }', [
+        'Query',
+        'Args',
+      ]),
   ],
   invalid: [
     {
@@ -96,6 +105,29 @@ ruleTester.run('prefer-null-over-undefined', rule, {
     {
       code: createObjectType("@Field()\nget myString(): string | undefined { return 'value'; }"),
       errors: DEFAULT_ERRORS,
+    },
+    {
+      code: createResolver("@Query()\nmyQuery(): string | undefined { return 'value'; }", ['Query']),
+      errors: [
+        {
+          messageId: 'preferNullOverUndefined',
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 1,
+        },
+      ],
+    },
+    {
+      code: createResolver(
+        "@Query()\necho(@Arg('input') input: string | undefined): string | null { return input ?? null; }",
+        ['Query', 'Arg']
+      ),
+      errors: [
+        {
+          messageId: 'preferNullOverUndefined',
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET + 1,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 6,
+        },
+      ],
     },
   ],
 });

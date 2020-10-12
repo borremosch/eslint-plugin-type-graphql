@@ -7,6 +7,8 @@ import {
   createResolver,
   CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
   CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET,
+  CREATE_RESOLVER_CODE_LINE_OFFSET,
+  CREATE_RESOLVER_CODE_COLUMN_OFFSET,
 } from '../testUtil/testCode';
 
 const rootDir = path.resolve(__dirname, '../fixtures');
@@ -35,6 +37,12 @@ ruleTester.run('invalid-decorated-type', rule, {
     createObjectType('@Field(() => [String])\nmyPromisedArray!: Promise<Array<string>>;'),
     createObjectType("@Field(() => String)\nget myString() { return 'value'; }"),
     createResolver("@Query(() => String)\nmyQuery(){ return 'value'; }", ['Query']),
+    createResolver('@Query(() => String)\necho(@Arg() input: string){ return input; }', ['Query', 'Arg']),
+    'class MyArgs{}\n' +
+      createResolver('\n@Query(() => String)\necho(@Args() { input }: MyArgs): string { return input; }', [
+        'Query',
+        'Args',
+      ]),
   ],
   invalid: [
     {
@@ -52,6 +60,60 @@ ruleTester.run('invalid-decorated-type', rule, {
     {
       code: createObjectType("@Field()\nget myUnion(): string | boolean { return 'value'; }"),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
+    },
+    {
+      code: createResolver(
+        "@Mutation(() => [String])\nmyMutation(): Array<Promise<string>>{ return [Promise.resolve('value')]; }",
+        ['Mutation']
+      ),
+      errors: [
+        {
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 1,
+          messageId: 'invalidDecoratedType',
+        },
+      ],
+    },
+    {
+      code: createResolver(
+        "@Mutation(() => String)\nmyMutation(@Arg('myArg', () => [[Int]]) coordinates: number[][]): string { return 'value'; }",
+        ['Mutation', 'Arg']
+      ),
+      errors: [
+        {
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET + 1,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 12,
+          messageId: 'invalidDecoratedType',
+        },
+      ],
+    },
+    {
+      code: createResolver(
+        "@Mutation(() => String)\nmyMutation(@Arg('myArg', () => [[Int]]) coordinates: number[][]): string { return 'value'; }",
+        ['Mutation', 'Arg']
+      ),
+      errors: [
+        {
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET + 1,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 12,
+          messageId: 'invalidDecoratedType',
+        },
+      ],
+    },
+    {
+      code:
+        'class CartesianCoordinates{}\nclass PolarCoordinates{}\n' +
+        createResolver(
+          "@Mutation(() => String)\nmyMutation(@Args() { coordinates }: CartesianCoordinates | PolarCoordinates): string { return 'value'; }",
+          ['Mutation', 'Args']
+        ),
+      errors: [
+        {
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET + 3,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 12,
+          messageId: 'invalidDecoratedType',
+        },
+      ],
     },
   ],
 });

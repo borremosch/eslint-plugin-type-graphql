@@ -12,13 +12,13 @@ class MyClass{
 }`;
 }
 
-export const CREATE_RESOLVER_CODE_COLUMN_LINE = 2;
+export const CREATE_RESOLVER_CODE_LINE_OFFSET = 5;
 export const CREATE_RESOLVER_CODE_COLUMN_OFFSET = 2;
 
 export function createResolver(code: string, imports: string[]): string {
   return `import { Resolver, ${imports.join(', ')} } from 'type-graphql'
 
-@Resolve()
+@Resolver()
 class MyResolver{
   ${indent(code, CREATE_RESOLVER_CODE_COLUMN_OFFSET)}
 }`;

@@ -2,7 +2,6 @@ import { AST_NODE_TYPES, ParserServices, TSESTree } from '@typescript-eslint/exp
 import { Type, UnionType, TypeFlags, TypeChecker } from 'typescript';
 
 export interface DecoratedProps {
-  name: string;
   kind: AST_NODE_TYPES;
   type: DecoratedType | null;
 }
@@ -39,15 +38,10 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
     type = type.getCallSignatures()[0].getReturnType();
   }
 
-  if (parent.type === AST_NODE_TYPES.ClassProperty || parent.type === AST_NODE_TYPES.MethodDefinition) {
-    return {
-      name: (parent.key as TSESTree.Identifier).name,
-      kind: parent.type,
-      type: getDecoratedType(type),
-    };
-  }
-
-  throw new Error('Unknown decorator parent type');
+  return {
+    kind: parent.type,
+    type: getDecoratedType(type),
+  };
 }
 
 function getDecoratedType(type: Type): DecoratedType | null {

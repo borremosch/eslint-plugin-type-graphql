@@ -69,5 +69,10 @@ describe('TypeGraphQLContext', () => {
   it('should ignore other package names', () => {
     expect(getResolvedTypeName("import { Field } from 'other-package';", 'Field')).toEqual(null);
     expect(getResolvedTypeName("const { Field } = require('other-package');", 'Field')).toEqual(null);
+    expect(getResolvedTypeName('const { Field } = require(null);', 'Field')).toEqual(null);
+  });
+
+  it('should ignore other object deconstructors', () => {
+    expect(getResolvedTypeName("const { Field } = norequire('type-graphql')", 'Field')).toEqual(null);
   });
 });

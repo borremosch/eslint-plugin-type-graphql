@@ -7,6 +7,8 @@ import {
   CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
   CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET,
   createResolver,
+  CREATE_RESOLVER_CODE_LINE_OFFSET,
+  CREATE_RESOLVER_CODE_COLUMN_OFFSET,
 } from '../testUtil/testCode';
 
 const rootDir = path.resolve(__dirname, '../fixtures');
@@ -47,6 +49,13 @@ ruleTester.run('wrong-decorator-signature', rule, {
     createObjectType("@Field(() => String, { nullable: 'items' })\nmyString!: string"), // <= Decorator is invalid rather than wrong
     createObjectType("@Field(() => String)\nget myString(){ return 'value'; }"),
     createResolver("@Query(() => String)\nmyQuery(){ return 'value'; }", ['Query']),
+    createResolver('@Query(() => String)\necho(@Arg() input: string){ return input; }', ['Query', 'Arg']),
+    createResolver('@Query(() => String)\necho(@Arg() input: string){ return input; }', ['Query', 'Arg']),
+    'class MyArgs{}\n' +
+      createResolver('\n@Query(() => String)\necho(@Args() { input }: MyArgs): string { return input; }', [
+        'Query',
+        'Args',
+      ]),
   ],
   invalid: [
     {
@@ -84,6 +93,45 @@ ruleTester.run('wrong-decorator-signature', rule, {
     {
       code: createObjectType("@Field(() => Int)\nget myString(){ return 'value'; }"),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'wrongDecoratorType' }],
+    },
+    {
+      code: createResolver("@Query(() => Int)\nmyQuery(): string { return 'value'; }", ['Query']),
+      errors: [
+        {
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 1,
+          messageId: 'wrongDecoratorType',
+        },
+      ],
+    },
+    {
+      code: createResolver("@Query()\necho(@Arg('input', () => Int) input: string) { return input; }", [
+        'Query',
+        'Arg',
+        'Int',
+      ]),
+      errors: [
+        {
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET + 1,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 6,
+          messageId: 'wrongDecoratorType',
+        },
+      ],
+    },
+    {
+      code:
+        'class MyArgs{}\nclass OtherArgs{}\n' +
+        createResolver('@Query()\necho(@Args(() => MyArgs) { input }: OtherArgs): string { return input; }', [
+          'Query',
+          'Args',
+        ]),
+      errors: [
+        {
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET + 3,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 6,
+          messageId: 'wrongDecoratorType',
+        },
+      ],
     },
   ],
 });
