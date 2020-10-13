@@ -23,6 +23,7 @@ export type DecoratorType = ValidDecoratorType | InvalidDecoratorType;
 export interface ValidDecoratorType {
   isValid: true;
   name: string;
+  originalName: string | null;
   isNullable?: boolean;
   isArray?: boolean;
   isArrayNullable?: boolean;
@@ -40,7 +41,7 @@ interface GetDecoratorTypeProps {
   typeGraphQLContext: TypeGraphQLContext;
 }
 export function getDecoratorProps({ node, typeGraphQLContext }: GetDecoratorTypeProps): DecoratorProps | null {
-  const name = typeGraphQLContext.getImportedName((node.expression as TSESTree.CallExpression).callee);
+  const name = typeGraphQLContext.getTypeGraphQLImportedName((node.expression as TSESTree.CallExpression).callee);
   if (!name || !ALL_DECORATORS.includes(name)) {
     // This is now a known TypeGraphQL decorator
     return null;
@@ -80,7 +81,7 @@ function getDecoratorType(
     isArray = true;
   }
 
-  let name = typeGraphQLContext.getImportedName(typeNode);
+  let name = typeGraphQLContext.getTypeGraphQLImportedName(typeNode);
   if (!name && typeNode.type === AST_NODE_TYPES.Identifier) {
     name = typeNode.name;
   }
@@ -100,7 +101,8 @@ function getDecoratorType(
 
   return {
     isValid: true,
-    name: name,
+    name,
+    originalName: typeGraphQLContext.getImportedName(typeNode),
     isNullable:
       (!isArray && nullablePropertyValue === true) ||
       nullablePropertyValue === 'itemsAndList' ||

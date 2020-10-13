@@ -49,7 +49,10 @@ export default createRule<Options, MessageIds>({
       const expected = getExpectedTypeGraphQLSignatures(decoratedProps.type);
       const found = getTypeGraphQLDecoratorSignature(decoratorProps.type);
 
-      if (!expected.typeFunctions.includes(found.typeFunction)) {
+      if (
+        !expected.typeFunctions.includes(found.typeFunction) &&
+        !(found.originalTypeFunction && expected.typeFunctions.includes(found.originalTypeFunction))
+      ) {
         context.report({
           node: decoratorProps.node,
           messageId: 'wrongDecoratorType',

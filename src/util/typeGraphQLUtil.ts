@@ -40,18 +40,22 @@ export function getTypeGraphQLVisitors(
 
 interface FoundTypeGraphQLDecoratorSignature {
   typeFunction: string;
+  originalTypeFunction: string | undefined;
   nullableOption: string | undefined;
 }
 export function getTypeGraphQLDecoratorSignature(type: ValidDecoratorType): FoundTypeGraphQLDecoratorSignature {
   return {
     typeFunction: getTypeFunction(type),
+    originalTypeFunction: type.originalName
+      ? getTypeFunction({ name: type.originalName, isArray: type.isArray })
+      : undefined,
     nullableOption: getNullableOption(type),
   };
 }
 
-function getTypeFunction(type: ValidDecoratorType | ValidDecoratedType): string {
-  let typeFunctionBody = type.name;
-  if (type.isArray) {
+function getTypeFunction({ name, isArray }: { name: string; isArray?: boolean }): string {
+  let typeFunctionBody = name;
+  if (isArray) {
     typeFunctionBody = '[' + typeFunctionBody + ']';
   }
 

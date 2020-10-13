@@ -19,7 +19,7 @@ function getResolvedTypeName(importStatement: string, localTypeName: string) {
     }
   }
 
-  return context.getImportedName((ast.body[1] as TSESTree.ExpressionStatement).expression);
+  return context.getTypeGraphQLImportedName((ast.body[1] as TSESTree.ExpressionStatement).expression);
 }
 
 describe('TypeGraphQLContext', () => {
