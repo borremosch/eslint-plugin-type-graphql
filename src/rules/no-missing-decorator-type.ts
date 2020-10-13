@@ -1,10 +1,11 @@
-import * as util from '../util';
+import { createRule } from '../util/createRule';
+import { ESLintUtils } from '@typescript-eslint/experimental-utils';
 import { getTypeGraphQLVisitors } from '../util/typeGraphQLUtil';
 
 type Options = ['nontrivial' | 'nontrivial-and-number' | 'all'];
 type MessageIds = 'missingNonTrivialDecoratorType' | 'missingNumberDecoratorType' | 'missingDecoratorType';
 
-export default util.createRule<Options, MessageIds>({
+export default createRule<Options, MessageIds>({
   name: 'no-missing-decorator-type',
   meta: {
     docs: {
@@ -29,7 +30,7 @@ export default util.createRule<Options, MessageIds>({
   },
   defaultOptions: ['nontrivial-and-number'],
   create(context, [strictness]) {
-    const parserServices = util.getParserServices(context);
+    const parserServices = ESLintUtils.getParserServices(context);
     const checker = parserServices.program.getTypeChecker();
 
     return getTypeGraphQLVisitors(checker, parserServices, ({ decoratorProps, decoratedProps }) => {

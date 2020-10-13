@@ -1,4 +1,5 @@
-import * as util from '../util';
+import { createRule } from '../util/createRule';
+import { ESLintUtils } from '@typescript-eslint/experimental-utils';
 import {
   getExpectedTypeGraphQLSignatures,
   getTypeGraphQLDecoratorSignature,
@@ -13,7 +14,7 @@ type MessageIds =
   | 'wrongDecoratorNullableOption'
   | 'superfluousDecoratorNullableOption';
 
-export default util.createRule<Options, MessageIds>({
+export default createRule<Options, MessageIds>({
   name: 'wrong-decorator-signature',
   meta: {
     docs: {
@@ -36,7 +37,7 @@ export default util.createRule<Options, MessageIds>({
   },
   defaultOptions: [],
   create(context) {
-    const parserServices = util.getParserServices(context);
+    const parserServices = ESLintUtils.getParserServices(context);
     const checker = parserServices.program.getTypeChecker();
 
     return getTypeGraphQLVisitors(checker, parserServices, ({ decoratorProps, decoratedProps }) => {
