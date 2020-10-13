@@ -36,6 +36,8 @@ ruleTester.run('invalid-decorated-type', rule, {
     createObjectType("@Field(() => [String], { nullable: 'itemsAndList' })\nmyString!: Array<string | null> | null;"),
     createObjectType('@Field(() => [String])\nmyPromisedArray!: Promise<Array<string>>;'),
     createObjectType("@Field(() => String)\nget myString() { return 'value'; }"),
+    'enum MyEnum {A, B}' + createObjectType('@Field(() => MyEnum)\nmyEnum!: MyEnum;'),
+    "declare enum MyEnum {A = 'a', B = 'b'}" + createObjectType('@Field(() => MyEnum)\nmyEnum!: MyEnum;'),
     createResolver("@Query(() => String)\nmyQuery(){ return 'value'; }", ['Query']),
     createResolver('@Query(() => String)\necho(@Arg() input: string){ return input; }', ['Query', 'Arg']),
     'class MyArgs{}\n' +
