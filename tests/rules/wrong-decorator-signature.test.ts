@@ -58,6 +58,7 @@ ruleTester.run('wrong-decorator-signature', rule, {
         'Query',
         'Args',
       ]),
+    createObjectType('@Field(() => IntAlias)\nmyNumber!: string;', { Int: 'IntAlias' }),
   ],
   invalid: [
     {
