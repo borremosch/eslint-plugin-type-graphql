@@ -1,5 +1,5 @@
 import { AST_NODE_TYPES, ParserServices, TSESTree } from '@typescript-eslint/experimental-utils';
-import { Type, UnionType, TypeFlags, TypeChecker } from 'typescript';
+import { Type, Symbol as TSSymbol, UnionType, TypeFlags, TypeChecker, SymbolFlags } from 'typescript';
 
 export interface DecoratedProps {
   kind: AST_NODE_TYPES;
@@ -142,9 +142,14 @@ function getDecoratedType(type: Type): DecoratedType | null {
 
   // Check whether the type is an object or enum
   if (type.flags & TypeFlags.EnumLiteral || type.flags === TypeFlags.TypeParameter || type.flags === TypeFlags.Object) {
+    let symbol = type.symbol as TSSymbol & { parent?: TSSymbol };
+    if (symbol.flags === SymbolFlags.EnumMember && symbol.parent?.flags === SymbolFlags.RegularEnum) {
+      symbol = symbol.parent;
+    }
+
     return {
       isValid: true,
-      name: type.symbol.name,
+      name: symbol.name,
       isNullable,
       isUndefinable,
     };

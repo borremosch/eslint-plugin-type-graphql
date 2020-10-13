@@ -48,7 +48,7 @@ ruleTester.run('wrong-decorator-signature', rule, {
     createObjectType('@Field(() => ID)\nmyID!: number;'),
     createObjectType('@Field(() => Date)\nmyDate!: Date;'),
     createObjectType('@Field(() => String)\nmyDate!: Date;'),
-    createObjectType("@Field(() => String, { nullable: 'items' })\nmyString!: string"), // <= Decorator is invalid rather than wrong
+    createObjectType("@Field(() => String, { nullable: 'items' })\nmyString!: string"), // Decorator is invalid rather than wrong
     createObjectType("@Field(() => String)\nget myString(){ return 'value'; }"),
     createResolver("@Query(() => String)\nmyQuery(){ return 'value'; }", ['Query']),
     createResolver('@Query(() => String)\necho(@Arg() input: string){ return input; }', ['Query', 'Arg']),
@@ -59,6 +59,9 @@ ruleTester.run('wrong-decorator-signature', rule, {
         'Args',
       ]),
     createObjectType('@Field(() => IntAlias)\nmyNumber!: string;', { Int: 'IntAlias' }),
+    'enum MyEnum {A, B}' + createObjectType('@Field(() => MyEnum)\nmyEnum!: MyEnum;'),
+    "declare enum MyEnum {A = 'a', B = 'b'}" + createObjectType('@Field(() => MyEnum)\nmyEnum!: MyEnum;'),
+    "enum MyEnum {A = 'a'}" + createObjectType('@Field(() => MyEnum)\nmyEnum!: MyEnum;'), // Single item enums are a special case in TypeScript
   ],
   invalid: [
     {
