@@ -23,6 +23,7 @@ export interface InvalidDecoratedType {
   isValid: false;
   tooComplex?: boolean;
   unknownType?: boolean;
+  nullOrUndefinedType?: boolean;
 }
 
 interface GetDecoratedTypeProps {
@@ -45,6 +46,8 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
     type: getDecoratedType(type),
   };
 }
+
+type EnumLiteralSymbol = TSSymbol & { parent?: TSSymbol };
 
 function getDecoratedType(type: Type): DecoratedType | null {
   // Check whether TypeScript was able to determine the type
@@ -82,12 +85,27 @@ function getDecoratedType(type: Type): DecoratedType | null {
       }
     }
 
-    if (innerTypes.length !== 1) {
-      // Union types are not supported
+    if (innerTypes.length === 0) {
+      // null/undefined-only types are not supported;
       return {
         isValid: false,
-        tooComplex: true,
+        nullOrUndefinedType: true,
       };
+    } else if (innerTypes.length > 1) {
+      // Check whether all types in union are part of the same enumeration (type is actually a nullable/undefinable enumartion)
+      const enumerationNames = innerTypes.map(
+        (innerType) => innerType.flags & TypeFlags.EnumLiteral && (innerType.symbol as EnumLiteralSymbol).parent?.name
+      );
+      const isSameEnumeration =
+        !!enumerationNames[0] && enumerationNames.every((enumerationName) => enumerationName === enumerationNames[0]);
+
+      if (!isSameEnumeration) {
+        // Complex union types are not supported
+        return {
+          isValid: false,
+          tooComplex: true,
+        };
+      }
     }
 
     type = innerTypes[0];
@@ -142,7 +160,7 @@ function getDecoratedType(type: Type): DecoratedType | null {
 
   // Check whether the type is an object or enum
   if (type.flags & TypeFlags.EnumLiteral || type.flags === TypeFlags.TypeParameter || type.flags === TypeFlags.Object) {
-    let symbol = type.symbol as TSSymbol & { parent?: TSSymbol };
+    let symbol = type.symbol as EnumLiteralSymbol;
     if (symbol.flags === SymbolFlags.EnumMember && symbol.parent?.flags === SymbolFlags.RegularEnum) {
       symbol = symbol.parent;
     }

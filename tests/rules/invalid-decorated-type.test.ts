@@ -38,6 +38,10 @@ ruleTester.run('invalid-decorated-type', rule, {
     createObjectType("@Field(() => String)\nget myString() { return 'value'; }"),
     'enum MyEnum {A, B}' + createObjectType('@Field(() => MyEnum)\nmyEnum!: MyEnum;'),
     "declare enum MyEnum {A = 'a', B = 'b'}" + createObjectType('@Field(() => MyEnum)\nmyEnum!: MyEnum;'),
+    "declare enum MyEnum {A = 'a', B = 'b'}" +
+      createObjectType('@Field(() => MyEnum, { nullable: true })\nmyEnum!: MyEnum | null;'),
+    "declare enum MyEnum {A = 'a'}" + createObjectType('@Field(() => MyEnum)\nmyEnum!: MyEnum;'),
+    createObjectType('@Field(() => MyEnum, { nullable: true })\nmyEnum!: MyEnum | null | undefined;'),
     "declare enum MyEnum {A = 'a'}" + createObjectType('@Field(() => MyEnum)\nmyEnum!: MyEnum;'),
     createResolver("@Query(() => String)\nmyQuery(){ return 'value'; }", ['Query']),
     createResolver('@Query(() => String)\necho(@Arg() input: string){ return input; }', ['Query', 'Arg']),
