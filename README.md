@@ -1,3 +1,4 @@
+[![npm version](https://badge.fury.io/js/eslint-plugin-type-graphql.svg)](https://badge.fury.io/js/eslint-plugin-type-graphql)
 ![build](https://github.com/borremosch/eslint-plugin-type-graphql/workflows/Node.js%20CI/badge.svg)
 [![codecov](https://codecov.io/gh/borremosch/eslint-plugin-type-graphql/branch/main/graph/badge.svg)](https://codecov.io/gh/borremosch/eslint-plugin-type-graphql)
 
