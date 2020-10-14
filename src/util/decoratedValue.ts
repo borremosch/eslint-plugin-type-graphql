@@ -130,7 +130,8 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
       } else {
         // Check whether all types in union are part of the same enumeration (type is actually a nullable/undefinable enumartion)
         const enumerationNames = innerTypes.map(
-          (innerType) => innerType.flags & TypeFlags.EnumLiteral && (innerType.symbol as EnumLiteralSymbol).parent?.name
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          (innerType) => innerType.flags & TypeFlags.EnumLiteral && (innerType.symbol as EnumLiteralSymbol).parent!.name
         );
         const isSameEnumeration =
           !!enumerationNames[0] && enumerationNames.every((enumerationName) => enumerationName === enumerationNames[0]);
@@ -210,8 +211,10 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
   // Check whether the type is an object or enum
   if (type.flags & TypeFlags.EnumLiteral || type.flags === TypeFlags.TypeParameter || type.flags === TypeFlags.Object) {
     let symbol = type.symbol as EnumLiteralSymbol;
-    if (symbol.flags === SymbolFlags.EnumMember && symbol.parent?.flags === SymbolFlags.RegularEnum) {
-      symbol = symbol.parent;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    if (symbol.flags === SymbolFlags.EnumMember && symbol.parent!.flags === SymbolFlags.RegularEnum) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      symbol = symbol.parent!;
     }
 
     return {

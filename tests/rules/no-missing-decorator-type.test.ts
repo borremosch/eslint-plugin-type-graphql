@@ -35,6 +35,7 @@ ruleTester.run('no-missing-decorator-type', rule, {
     createObjectType('@Field(() => Int)\nmyNumber!: number;', ['Field', 'Int']),
     createObjectType('@Field(() => String, { nullable: true })\nmyString!: string | null;'),
     createObjectType("@Field()\nget myString(){ return 'value'; }"),
+    createObjectType('@Field()\nmyString!: any;'),
     createResolver("@Query()\nmyQuery(){ return 'value'; }", ['Query']),
     createResolver('@Query(() => String)\necho(@Arg() input: string){ return input; }', ['Query', 'Arg']),
     createObjectType('@Field\nmyString!: string;'), // Decorator without call expression will be caught by TypeScript

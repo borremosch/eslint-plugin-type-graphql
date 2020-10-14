@@ -78,5 +78,10 @@ describe('TypeGraphQLContext', () => {
 
   it('should ignore other variable declarators', () => {
     expect(getResolvedTypeName("const str = 'value'", 'Field')).toEqual(null);
+    expect(getResolvedTypeName("const [str] = require('type-graphql')", 'Field')).toEqual(null);
+  });
+
+  it('should ignore empty variable declarators', () => {
+    expect(getResolvedTypeName('const str', 'Field')).toEqual(null);
   });
 });

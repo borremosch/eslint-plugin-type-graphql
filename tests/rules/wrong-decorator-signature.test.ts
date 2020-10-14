@@ -30,6 +30,7 @@ const DEFAULT_ERROR_LOCATION = {
 ruleTester.run('wrong-decorator-signature', rule, {
   valid: [
     createObjectType('@Field(() => String)\nmyString!: string;'),
+    createObjectType('@Field(function(){ return String; })\nmyString!: string;'),
     createObjectType('@Field(() => String, { nullable: true })\nmyString!: string | null;'),
     createObjectType('@Field(() => String, { nullable: true })\nmyString!: string | undefined;'),
     createObjectType("@Field(() => [String], { nullable: 'items' })\nmyArray!: Array<string | null>;"),
@@ -50,6 +51,7 @@ ruleTester.run('wrong-decorator-signature', rule, {
     createObjectType('@Field(() => String)\nmyDate!: Date;'),
     createObjectType("@Field(() => String, { nullable: 'items' })\nmyString!: string"), // Decorator is invalid rather than wrong
     createObjectType("@Field(() => String)\nget myString(){ return 'value'; }"),
+    createObjectType('@Field(() => String)\nmyString!: any;'),
     createResolver("@Query(() => String)\nmyQuery(){ return 'value'; }", ['Query']),
     createResolver('@Query(() => String)\necho(@Arg() input: string){ return input; }', ['Query', 'Arg']),
     createResolver('@Query(() => String)\necho(@Arg() input: string){ return input; }', ['Query', 'Arg']),
@@ -99,6 +101,12 @@ ruleTester.run('wrong-decorator-signature', rule, {
     {
       code: createObjectType("@Field(() => Int)\nget myString(){ return 'value'; }"),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'wrongDecoratorType' }],
+    },
+    {
+      code:
+        "import {MyType as MyTypeAlias} from 'mypackage';\n" +
+        createObjectType('@Field(() => MyTypeAlias)\nmyString!: string;'),
+      errors: [{ line: 6, column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 1, messageId: 'wrongDecoratorType' }],
     },
     {
       code: createResolver("@Query(() => Int)\nmyQuery(): string { return 'value'; }", ['Query']),

@@ -91,10 +91,16 @@ class MyResolver {
   @Query(() => MyUnionType)
   myQuery(): Promise<typeof MyUnionType>{}
 }`,
+    createObjectType('@Field(() => Array)\nmyString!: Array;'), // Should be caught by TS compiler rather than plugin
+    createObjectType('@Field()\nmyField;'), // Should be caught by TS compiler rather than plugin
   ],
   invalid: [
     {
       code: createObjectType('@Field()\nmyUnion!: unknown;'),
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
+    },
+    {
+      code: createObjectType('@Field()\nmyUnion!: undefined | null;'),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
     },
     {
