@@ -43,7 +43,7 @@ interface GetDecoratorTypeProps {
 export function getDecoratorProps({ node, typeGraphQLContext }: GetDecoratorTypeProps): DecoratorProps | null {
   const name = typeGraphQLContext.getTypeGraphQLImportedName((node.expression as TSESTree.CallExpression).callee);
   if (!name || !ALL_DECORATORS.includes(name)) {
-    // This is now a known TypeGraphQL decorator
+    // This is not a known TypeGraphQL decorator
     return null;
   }
 
