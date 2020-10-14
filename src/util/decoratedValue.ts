@@ -24,12 +24,43 @@ export interface InvalidDecoratedType {
   tooComplex?: boolean;
   unknownType?: boolean;
   nullOrUndefinedType?: boolean;
+  unionType?: boolean;
 }
 
 interface GetDecoratedTypeProps {
   decoratorNode: TSESTree.Decorator;
   checker: TypeChecker;
   parserServices: ParserServices;
+}
+
+function getPossibleUnionName(typedNode: TSESTree.Node): string | undefined {
+  let typeAnnotation: TSESTree.TypeNode | undefined;
+
+  if (typedNode.type === AST_NODE_TYPES.ClassProperty) {
+    typeAnnotation = typedNode.typeAnnotation?.typeAnnotation;
+  } else if (typedNode.type === AST_NODE_TYPES.MethodDefinition && typedNode.kind === 'method') {
+    typeAnnotation = typedNode.value.returnType?.typeAnnotation;
+  }
+
+  if (!typeAnnotation) {
+    return;
+  }
+
+  if (
+    typeAnnotation.type === AST_NODE_TYPES.TSTypeReference &&
+    ['Array', 'Promise'].includes((typeAnnotation.typeName as TSESTree.Identifier).name)
+  ) {
+    typeAnnotation = typeAnnotation.typeParameters?.params?.[0] || typeAnnotation;
+  }
+
+  if (
+    typeAnnotation.type === AST_NODE_TYPES.TSTypeQuery &&
+    typeAnnotation.exprName.type === AST_NODE_TYPES.Identifier
+  ) {
+    return typeAnnotation.exprName.name;
+  }
+
+  return undefined;
 }
 
 export function getDecoratedProps({ decoratorNode, checker, parserServices }: GetDecoratedTypeProps): DecoratedProps {
@@ -43,13 +74,13 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
 
   return {
     kind: parent.type,
-    type: getDecoratedType(type),
+    type: getDecoratedType(type, getPossibleUnionName(parent)),
   };
 }
 
 type EnumLiteralSymbol = TSSymbol & { parent?: TSSymbol };
 
-function getDecoratedType(type: Type): DecoratedType | null {
+function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType | null {
   // Check whether TypeScript was able to determine the type
   if (type.flags === TypeFlags.Any) {
     return null;
@@ -58,7 +89,7 @@ function getDecoratedType(type: Type): DecoratedType | null {
   // Check wheter the type is a promise
   if (type.flags === TypeFlags.Object && type.symbol.escapedName === 'Promise') {
     const typeArguments = ((type as unknown) as { resolvedTypeArguments: Type[] }).resolvedTypeArguments;
-    const innerType = getDecoratedType(typeArguments[0]);
+    const innerType = getDecoratedType(typeArguments[0], possibleUnionName);
     if (!innerType?.isValid) {
       return innerType;
     }
@@ -100,11 +131,20 @@ function getDecoratedType(type: Type): DecoratedType | null {
         !!enumerationNames[0] && enumerationNames.every((enumerationName) => enumerationName === enumerationNames[0]);
 
       if (!isSameEnumeration) {
-        // Complex union types are not supported
-        return {
-          isValid: false,
-          tooComplex: true,
-        };
+        // Not an enumation. Union types may still be valid, for example when created using createUnionType. If we found a possible union type in the AST, we will use it
+        if (possibleUnionName) {
+          return {
+            isValid: true,
+            name: possibleUnionName,
+            isNullable,
+            isUndefinable,
+          };
+        } else {
+          return {
+            isValid: false,
+            unionType: true,
+          };
+        }
       }
     }
 
@@ -114,12 +154,15 @@ function getDecoratedType(type: Type): DecoratedType | null {
   // Check whether the type is an array
   if (type.flags === TypeFlags.Object && type.symbol.name === 'Array') {
     const typeArguments = ((type as unknown) as { resolvedTypeArguments: Type[] }).resolvedTypeArguments;
-    const innerType = getDecoratedType(typeArguments[0]);
+    const innerType = getDecoratedType(typeArguments[0], possibleUnionName);
     if (!innerType) {
       return null;
     }
-    if (!innerType.isValid || innerType.isPromise || innerType.isArray) {
-      // Inner type is invalid or types are nested in an unsupported way
+    if (!innerType.isValid) {
+      // Inner type is invalid
+      return innerType;
+    } else if (innerType.isPromise || innerType.isArray) {
+      // Types are nested in an unsupported way
       return {
         isValid: false,
         tooComplex: true,

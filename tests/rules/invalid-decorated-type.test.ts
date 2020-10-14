@@ -46,10 +46,50 @@ ruleTester.run('invalid-decorated-type', rule, {
     createResolver("@Query(() => String)\nmyQuery(){ return 'value'; }", ['Query']),
     createResolver('@Query(() => String)\necho(@Arg() input: string){ return input; }', ['Query', 'Arg']),
     'class MyArgs{}\n' +
-      createResolver('\n@Query(() => String)\necho(@Args() { input }: MyArgs): string { return input; }', [
+      createResolver('@Query(() => String)\necho(@Args() { input }: MyArgs): string { return input; }', [
         'Query',
         'Args',
       ]),
+    `import {ObjectType, Field} from 'type-graphql';
+declare function createUnionType<T>(): T;
+class MyType1 {}
+class MyType2 {}
+const MyUnionType: MyType1 | MyType2 = createUnionType<MyType1 | MyType2>();
+@ObjectType()
+class MyClass {
+  @Field(() => MyUnionType)
+  myField!: typeof MyUnionType;
+}`,
+    `import { Resolver, Query } from 'type-graphql';
+declare function createUnionType<T>(): T;
+class MyType1 {}
+class MyType2 {}
+const MyUnionType: MyType1 | MyType2 = createUnionType<MyType1 | MyType2>();
+@Resolver()
+class MyResolver {
+  @Query(() => MyUnionType)
+  myQuery(): typeof MyUnionType{}
+}`,
+    `import {ObjectType, Field} from 'type-graphql';
+declare function createUnionType<T>(): T;
+class MyType1 {}
+class MyType2 {}
+const MyUnionType: MyType1 | MyType2 = createUnionType<MyType1 | MyType2>();
+@ObjectType()
+class MyClass {
+  @Field(() => [MyUnionType])
+  myField!: Array<typeof MyUnionType>;
+}`,
+    `import { Resolver, Query } from 'type-graphql';
+declare function createUnionType<T>(): T;
+class MyType1 {}
+class MyType2 {}
+const MyUnionType: MyType1 | MyType2 = createUnionType<MyType1 | MyType2>();
+@Resolver()
+class MyResolver {
+  @Query(() => MyUnionType)
+  myQuery(): Promise<typeof MyUnionType>{}
+}`,
   ],
   invalid: [
     {
@@ -58,7 +98,7 @@ ruleTester.run('invalid-decorated-type', rule, {
     },
     {
       code: createObjectType('@Field()\nmyUnion!: string | boolean;'),
-      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'unionType' }],
     },
     {
       code: createObjectType('@Field()\nmyArrayOfPromises!: Array<Promise<string>>;'),
@@ -74,7 +114,7 @@ ruleTester.run('invalid-decorated-type', rule, {
     },
     {
       code: createObjectType("@Field()\nget myUnion(): string | boolean { return 'value'; }"),
-      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'unionType' }],
     },
     {
       code: createResolver(
@@ -126,7 +166,83 @@ ruleTester.run('invalid-decorated-type', rule, {
         {
           line: CREATE_RESOLVER_CODE_LINE_OFFSET + 3,
           column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 12,
-          messageId: 'invalidDecoratedType',
+          messageId: 'unionType',
+        },
+      ],
+    },
+    {
+      code: `import {ObjectType, Field} from 'type-graphql';
+declare function createUnionType<T>(): T;
+class MyType1 {}
+class MyType2 {}
+const MyUnionType: MyType1 | MyType2 = createUnionType<MyType1 | MyType2>();
+@ObjectType()
+class MyClass {
+  @Field(() => MyUnionType)
+  myField!: MyType1 | MyType2;
+}`,
+      errors: [
+        {
+          line: 8,
+          column: 3,
+          messageId: 'unionType',
+        },
+      ],
+    },
+    {
+      code: `import { Resolver, Query } from 'type-graphql';
+declare function createUnionType<T>(): T;
+class MyType1 {}
+class MyType2 {}
+const MyUnionType: MyType1 | MyType2 = createUnionType<MyType1 | MyType2>();
+@Resolver()
+class MyResolver {
+  @Query(() => MyUnionType)
+  myQuery(): MyType1 | MyType2{}
+}`,
+      errors: [
+        {
+          line: 8,
+          column: 3,
+          messageId: 'unionType',
+        },
+      ],
+    },
+    {
+      code: `import {ObjectType, Field} from 'type-graphql';
+declare function createUnionType<T>(): T;
+class MyType1 {}
+class MyType2 {}
+const MyUnionType: MyType1 | MyType2 = createUnionType<MyType1 | MyType2>();
+@ObjectType()
+class MyClass {
+  @Field(() => [MyUnionType])
+  myField!: Array<MyType1 | MyType2>;
+}`,
+      errors: [
+        {
+          line: 8,
+          column: 3,
+          messageId: 'unionType',
+        },
+      ],
+    },
+    {
+      code: `import { Resolver, Query } from 'type-graphql';
+declare function createUnionType<T>(): T;
+class MyType1 {}
+class MyType2 {}
+const MyUnionType: MyType1 | MyType2 = createUnionType<MyType1 | MyType2>();
+@Resolver()
+class MyResolver {
+  @Query(() => MyUnionType)
+  myQuery(): Promise<MyType1 | MyType2>{}
+}`,
+      errors: [
+        {
+          line: 8,
+          column: 3,
+          messageId: 'unionType',
         },
       ],
     },

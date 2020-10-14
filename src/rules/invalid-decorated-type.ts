@@ -1,9 +1,10 @@
 import { createRule } from '../util/createRule';
 import { ESLintUtils } from '@typescript-eslint/experimental-utils';
 import { getTypeGraphQLVisitors } from '../util/typeGraphQLUtil';
+import { InvalidDecoratedType } from '../util/decoratedValue';
 
 type Options = [];
-type MessageIds = 'invalidDecoratedType';
+type MessageIds = 'invalidDecoratedType' | 'unionType';
 
 export default createRule<Options, MessageIds>({
   name: 'wrong-decorator-signature',
@@ -16,6 +17,8 @@ export default createRule<Options, MessageIds>({
     },
     messages: {
       invalidDecoratedType: 'Decorated type is not expressable in GraphQL',
+      unionType:
+        "Unexpected decorated union type. Use TypeGraphQL's `createUnionType` to create your union in combination with `typeof MyUnionType` as a type annotation",
     },
     schema: [],
     type: 'problem',
@@ -31,10 +34,17 @@ export default createRule<Options, MessageIds>({
         return;
       }
 
-      context.report({
-        node: decoratorProps.node,
-        messageId: 'invalidDecoratedType',
-      });
+      if ((decoratedProps.type as InvalidDecoratedType).unionType) {
+        context.report({
+          node: decoratorProps.node,
+          messageId: 'unionType',
+        });
+      } else {
+        context.report({
+          node: decoratorProps.node,
+          messageId: 'invalidDecoratedType',
+        });
+      }
     });
   },
 });
