@@ -102,6 +102,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
   // Check whether the type is nullable or undefinable
   let isNullable = false;
   let isUndefinable = false;
+  let isBooleanUnion = false;
 
   if (type.flags === TypeFlags.Union) {
     const innerTypes = [...(type as UnionType).types];
@@ -123,27 +124,32 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
         nullOrUndefinedType: true,
       };
     } else if (innerTypes.length > 1) {
-      // Check whether all types in union are part of the same enumeration (type is actually a nullable/undefinable enumartion)
-      const enumerationNames = innerTypes.map(
-        (innerType) => innerType.flags & TypeFlags.EnumLiteral && (innerType.symbol as EnumLiteralSymbol).parent?.name
-      );
-      const isSameEnumeration =
-        !!enumerationNames[0] && enumerationNames.every((enumerationName) => enumerationName === enumerationNames[0]);
+      // Check whether this is a boolean
+      if (innerTypes.length === 2 && innerTypes.every((innerType) => innerType.flags === TypeFlags.BooleanLiteral)) {
+        isBooleanUnion = true;
+      } else {
+        // Check whether all types in union are part of the same enumeration (type is actually a nullable/undefinable enumartion)
+        const enumerationNames = innerTypes.map(
+          (innerType) => innerType.flags & TypeFlags.EnumLiteral && (innerType.symbol as EnumLiteralSymbol).parent?.name
+        );
+        const isSameEnumeration =
+          !!enumerationNames[0] && enumerationNames.every((enumerationName) => enumerationName === enumerationNames[0]);
 
-      if (!isSameEnumeration) {
-        // Not an enumation. Union types may still be valid, for example when created using createUnionType. If we found a possible union type in the AST, we will use it
-        if (possibleUnionName) {
-          return {
-            isValid: true,
-            name: possibleUnionName,
-            isNullable,
-            isUndefinable,
-          };
-        } else {
-          return {
-            isValid: false,
-            unionType: true,
-          };
+        if (!isSameEnumeration) {
+          // Not an enumation. Union types may still be valid, for example when created using createUnionType. If we found a possible union type in the AST, we will use it
+          if (possibleUnionName) {
+            return {
+              isValid: true,
+              name: possibleUnionName,
+              isNullable,
+              isUndefinable,
+            };
+          } else {
+            return {
+              isValid: false,
+              unionType: true,
+            };
+          }
         }
       }
     }
@@ -192,7 +198,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
       isNullable,
       isUndefinable,
     };
-  } else if (type.flags & TypeFlags.Boolean) {
+  } else if (type.flags & TypeFlags.Boolean || isBooleanUnion) {
     return {
       isValid: true,
       name: 'boolean',
