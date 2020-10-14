@@ -5,6 +5,5 @@ import { ESLintUtils } from '@typescript-eslint/experimental-utils';
 const version = require('../../package.json').version;
 
 export const createRule = ESLintUtils.RuleCreator(
-  (name) =>
-    `https://github.com/borremosch/eslint-plugin-type-graphql/blob/v${version}/packages/eslint-plugin/docs/rules/${name}.md`
+  (name) => `https://github.com/borremosch/eslint-plugin-type-graphql/blob/v${version}/docs/rules/${name}.md`
 );
