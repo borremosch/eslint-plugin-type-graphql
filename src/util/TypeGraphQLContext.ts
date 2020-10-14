@@ -35,6 +35,9 @@ export class TypeGraphQLContext {
         }
 
         const source = getNameFromCommonJsRequire(init);
+        if (source === null) {
+          return;
+        }
         const imports = source === TYPE_GRAPHQL_PACKAGE_NAME ? this.typeGraphQLImports : this.imports;
 
         if (id.type === AST_NODE_TYPES.Identifier) {

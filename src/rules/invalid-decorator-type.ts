@@ -38,12 +38,14 @@ export default createRule<Options, MessageIds>({
           node: decoratorProps.node,
           messageId: 'multiElementArray',
         });
-      } else if (decoratorProps.type.invalidTypeFunction) {
+      }
+      if (decoratorProps.type.invalidTypeFunction) {
         context.report({
           node: decoratorProps.node,
           messageId: 'invalidTypeFunction',
         });
-      } else if (decoratorProps.type.invalidNullableValue) {
+      }
+      if (decoratorProps.type.invalidNullableValue) {
         context.report({
           node: decoratorProps.node,
           messageId: 'invalidNullableValue',
