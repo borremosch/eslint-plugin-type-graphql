@@ -11,13 +11,13 @@ TypeGraphQL linting rules for ESLint
 Install prerequisites:
 
 ```bash
-npm i eslint @typescript-eslint/parser
+npm i -D eslint @typescript-eslint/parser
 ```
 
 Install eslint-plugin-type-graphql:
 
 ```bash
-npm i eslint-plugin-type-graphql
+npm i -D eslint-plugin-type-graphql
 ```
 
 ## Recommended configuration
