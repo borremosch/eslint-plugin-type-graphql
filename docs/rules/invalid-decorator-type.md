@@ -39,6 +39,6 @@ deletedAtTime?: number | null;
 ```
 
 ```ts
-@Field(() => Int, { nullable: 'items' })
+@Field(() => [Int], { nullable: 'items' })
 timestamps?: Array<number | null>;
 ```
