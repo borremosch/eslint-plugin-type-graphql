@@ -90,8 +90,11 @@ interface ExpectedTypeGraphQLDecoratorSignature {
   typeFunctions: string[];
   nullableOption: string | undefined;
 }
-export function getExpectedTypeGraphQLSignatures(type: ValidDecoratedType): ExpectedTypeGraphQLDecoratorSignature {
-  const expectedTypeNames = EXPECTED_TYPE_NAME_MAP[type.name] || [type.name];
+export function getExpectedTypeGraphQLSignatures(
+  type: ValidDecoratedType,
+  allowedCustomTypes: string[]
+): ExpectedTypeGraphQLDecoratorSignature {
+  const expectedTypeNames = [...(EXPECTED_TYPE_NAME_MAP[type.name] || [type.name]), ...allowedCustomTypes];
 
   return {
     typeFunctions: expectedTypeNames.map((expectedTypeName) => getTypeFunction({ ...type, name: expectedTypeName })),

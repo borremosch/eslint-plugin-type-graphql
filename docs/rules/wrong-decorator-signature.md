@@ -4,6 +4,35 @@
 
 This rule will prevent inconsistencies between TypeGraphQL decorators, and the types that they are decorating.
 
+## Options
+
+```ts
+type Options = {
+  customTypes: {
+    [key: string]: string | string[];
+  };
+};
+```
+
+The rule accepts a single object as options, with the following key:
+
+- `customTypes`: this object may contain a mapping between TypeScript types and custom GraphQL types. the keys in the object are TypeScript names, and the values in the object are a string or array of strings of custom GraphQL types that they may be mapped to.
+
+Example configuration:
+
+```json
+{
+  "type-graphql/wrong-decorator-signature": [
+    "error",
+    {
+      "number": "BigInt"
+    }
+  ]
+}
+```
+
+### Examples
+
 Examples of **incorrect** code for this rule:
 
 ```ts

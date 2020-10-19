@@ -6,8 +6,9 @@ import {
   getTypeGraphQLVisitors,
 } from '../util/typeGraphQLUtil';
 import { createDisjunction } from '../util/createDisjunction';
+import { ValidDecoratedType } from '../util/decoratedValue';
 
-type Options = [];
+type Options = [{ customTypes?: { [key: string]: string | string[] } }];
 type MessageIds =
   | 'wrongDecoratorType'
   | 'missingDecoratorNullableOption'
@@ -32,11 +33,28 @@ export default createRule<Options, MessageIds>({
       superfluousDecoratorNullableOption:
         'Decorator options contains superfluous property {{ found }}. Decorated type is not nullable.',
     },
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        items: {
+          oneOf: [
+            {
+              type: 'string',
+            },
+            {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+            },
+          ],
+        },
+      },
+    ],
     type: 'problem',
   },
-  defaultOptions: [],
-  create(context) {
+  defaultOptions: [{}],
+  create(context, options) {
     const parserServices = ESLintUtils.getParserServices(context);
     const checker = parserServices.program.getTypeChecker();
 
@@ -46,7 +64,10 @@ export default createRule<Options, MessageIds>({
         return;
       }
 
-      const expected = getExpectedTypeGraphQLSignatures(decoratedProps.type);
+      const expected = getExpectedTypeGraphQLSignatures(
+        decoratedProps.type,
+        getAllowedCustomTypes(options, decoratedProps.type)
+      );
       const found = getTypeGraphQLDecoratorSignature(decoratorProps.type);
 
       if (
@@ -93,3 +114,13 @@ export default createRule<Options, MessageIds>({
     });
   },
 });
+
+function getAllowedCustomTypes(options: Readonly<Options>, decoratedType: ValidDecoratedType): string[] {
+  const possibleCustomTypes = options[0].customTypes?.[decoratedType.name];
+
+  return Array.isArray(possibleCustomTypes)
+    ? possibleCustomTypes
+    : typeof possibleCustomTypes === 'string'
+    ? [possibleCustomTypes]
+    : [];
+}
