@@ -79,22 +79,16 @@ function getNullableOption(type: ValidDecoratorType | ValidDecoratedType): strin
   return undefined;
 }
 
-const EXPECTED_TYPE_NAME_MAP: { [key: string]: string[] } = {
-  number: ['Int', 'Float', 'ID'],
-  string: ['String', 'ID'],
-  boolean: ['Boolean'],
-  Date: ['Date', 'String'],
-};
-
 interface ExpectedTypeGraphQLDecoratorSignature {
   typeFunctions: string[];
   nullableOption: string | undefined;
 }
-export function getExpectedTypeGraphQLSignatures(type: ValidDecoratedType): ExpectedTypeGraphQLDecoratorSignature {
-  const expectedTypeNames = EXPECTED_TYPE_NAME_MAP[type.name] || [type.name];
-
+export function getExpectedTypeGraphQLSignatures(
+  type: ValidDecoratedType,
+  allowedTypes: string[]
+): ExpectedTypeGraphQLDecoratorSignature {
   return {
-    typeFunctions: expectedTypeNames.map((expectedTypeName) => getTypeFunction({ ...type, name: expectedTypeName })),
+    typeFunctions: allowedTypes.map((expectedTypeName) => getTypeFunction({ ...type, name: expectedTypeName })),
     nullableOption: getNullableOption(type),
   };
 }

@@ -6,8 +6,9 @@ import {
   getTypeGraphQLVisitors,
 } from '../util/typeGraphQLUtil';
 import { createDisjunction } from '../util/createDisjunction';
+import { ValidDecoratedType } from '../util/decoratedValue';
 
-type Options = [];
+type Options = [{ customTypes?: { [key: string]: string | string[] }; replaceDefaultTypes?: boolean }];
 type MessageIds =
   | 'wrongDecoratorType'
   | 'missingDecoratorNullableOption'
@@ -32,11 +33,28 @@ export default createRule<Options, MessageIds>({
       superfluousDecoratorNullableOption:
         'Decorator options contains superfluous property {{ found }}. Decorated type is not nullable.',
     },
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        items: {
+          oneOf: [
+            {
+              type: 'string',
+            },
+            {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+            },
+          ],
+        },
+      },
+    ],
     type: 'problem',
   },
-  defaultOptions: [],
-  create(context) {
+  defaultOptions: [{}],
+  create(context, options) {
     const parserServices = ESLintUtils.getParserServices(context);
     const checker = parserServices.program.getTypeChecker();
 
@@ -46,7 +64,10 @@ export default createRule<Options, MessageIds>({
         return;
       }
 
-      const expected = getExpectedTypeGraphQLSignatures(decoratedProps.type);
+      const expected = getExpectedTypeGraphQLSignatures(
+        decoratedProps.type,
+        getAllowedTypes(options, decoratedProps.type)
+      );
       const found = getTypeGraphQLDecoratorSignature(decoratorProps.type);
 
       if (
@@ -93,3 +114,22 @@ export default createRule<Options, MessageIds>({
     });
   },
 });
+
+const EXPECTED_TYPE_NAME_MAP: { [key: string]: string[] } = {
+  number: ['Int', 'Float', 'ID'],
+  string: ['String', 'ID'],
+  boolean: ['Boolean'],
+  Date: ['Date', 'String'],
+};
+
+function getAllowedTypes(options: Readonly<Options>, decoratedType: ValidDecoratedType): string[] {
+  const defaultTypes = EXPECTED_TYPE_NAME_MAP[decoratedType.name] || [decoratedType.name];
+  const possibleCustomTypes = options[0].customTypes?.[decoratedType.name];
+  const customTypes = Array.isArray(possibleCustomTypes)
+    ? possibleCustomTypes
+    : typeof possibleCustomTypes === 'string'
+    ? [possibleCustomTypes]
+    : [];
+
+  return [...(options[0].replaceDefaultTypes ? [] : defaultTypes), ...customTypes];
+}

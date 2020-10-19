@@ -64,6 +64,26 @@ ruleTester.run('wrong-decorator-signature', rule, {
     'enum MyEnum {A, B}' + createObjectType('@Field(() => MyEnum)\nmyEnum!: MyEnum;'),
     "declare enum MyEnum {A = 'a', B = 'b'}" + createObjectType('@Field(() => MyEnum)\nmyEnum!: MyEnum;'),
     "enum MyEnum {A = 'a'}" + createObjectType('@Field(() => MyEnum)\nmyEnum!: MyEnum;'), // Single item enums are a special case in TypeScript
+    {
+      code: createObjectType('@Field(() => BigInt)\nmyInt!: number'),
+      options: [
+        {
+          customTypes: {
+            number: 'BigInt',
+          },
+        },
+      ],
+    },
+    {
+      code: createObjectType('@Field(() => Int)\nmyInt!: number'),
+      options: [
+        {
+          customTypes: {
+            number: ['BigInt', 'OtherType'],
+          },
+        },
+      ],
+    },
   ],
   invalid: [
     {
@@ -146,6 +166,22 @@ ruleTester.run('wrong-decorator-signature', rule, {
           messageId: 'wrongDecoratorType',
         },
       ],
+    },
+    {
+      code: createObjectType('@Field(() => BigInt)\nmyInt!: number'),
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'wrongDecoratorType' }],
+    },
+    {
+      code: createObjectType('@Field(() => Int)\nmyInt!: number'),
+      options: [
+        {
+          customTypes: {
+            number: ['BigInt', 'OtherType'],
+          },
+          replaceDefaultTypes: true,
+        },
+      ],
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'wrongDecoratorType' }],
     },
   ],
 });
