@@ -2,7 +2,14 @@
 
 ## Rule Details
 
-This rule will prevent inconsistencies between TypeGraphQL decorators, and the types that they are decorating.
+This rule will prevent inconsistencies between TypeGraphQL decorators, and the types that they are decorating. By default, the following mappings of types are considered valid:
+
+| TypeScript type | Decorator type |
+| --------------- | -------------- |
+| `number`        | Int, Float, ID |
+| `string`        | String, ID     |
+| `boolean`       | Boolean        |
+| `Date`          | Date, String   |
 
 ## Options
 
@@ -11,12 +18,14 @@ type Options = {
   customTypes: {
     [key: string]: string | string[];
   };
+  replaceDefaultTypes?: boolean;
 };
 ```
 
-The rule accepts a single object as options, with the following key:
+The rule accepts a single object as options, with the following keys:
 
 - `customTypes`: this object may contain a mapping between TypeScript types and custom GraphQL types. the keys in the object are TypeScript names, and the values in the object are a string or array of strings of custom GraphQL types that they may be mapped to.
+- `replaceDefaultTypes`: By default, custom type mappings will be added to the default type mappings listed above. By setting this flag to true, the default type mappings will not be used.
 
 Example configuration:
 

@@ -8,7 +8,7 @@ import {
 import { createDisjunction } from '../util/createDisjunction';
 import { ValidDecoratedType } from '../util/decoratedValue';
 
-type Options = [{ customTypes?: { [key: string]: string | string[] } }];
+type Options = [{ customTypes?: { [key: string]: string | string[] }; replaceDefaultTypes?: boolean }];
 type MessageIds =
   | 'wrongDecoratorType'
   | 'missingDecoratorNullableOption'
@@ -66,7 +66,7 @@ export default createRule<Options, MessageIds>({
 
       const expected = getExpectedTypeGraphQLSignatures(
         decoratedProps.type,
-        getAllowedCustomTypes(options, decoratedProps.type)
+        getAllowedTypes(options, decoratedProps.type)
       );
       const found = getTypeGraphQLDecoratorSignature(decoratorProps.type);
 
@@ -115,12 +115,21 @@ export default createRule<Options, MessageIds>({
   },
 });
 
-function getAllowedCustomTypes(options: Readonly<Options>, decoratedType: ValidDecoratedType): string[] {
-  const possibleCustomTypes = options[0].customTypes?.[decoratedType.name];
+const EXPECTED_TYPE_NAME_MAP: { [key: string]: string[] } = {
+  number: ['Int', 'Float', 'ID'],
+  string: ['String', 'ID'],
+  boolean: ['Boolean'],
+  Date: ['Date', 'String'],
+};
 
-  return Array.isArray(possibleCustomTypes)
+function getAllowedTypes(options: Readonly<Options>, decoratedType: ValidDecoratedType): string[] {
+  const defaultTypes = EXPECTED_TYPE_NAME_MAP[decoratedType.name] || [decoratedType.name];
+  const possibleCustomTypes = options[0].customTypes?.[decoratedType.name];
+  const customTypes = Array.isArray(possibleCustomTypes)
     ? possibleCustomTypes
     : typeof possibleCustomTypes === 'string'
     ? [possibleCustomTypes]
     : [];
+
+  return [...(options[0].replaceDefaultTypes ? [] : defaultTypes), ...customTypes];
 }
