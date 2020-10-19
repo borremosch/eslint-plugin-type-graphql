@@ -6,6 +6,11 @@ export function createDisjunction(elements: string[]): string {
   }
 
   return (
-    elements.slice(0, elements.length - 1).map((element) => `${element}, `) + 'or ' + elements[elements.length - 1]
+    elements
+      .slice(0, elements.length - 1)
+      .map((element) => `${element}, `)
+      .join('') +
+    'or ' +
+    elements[elements.length - 1]
   );
 }
