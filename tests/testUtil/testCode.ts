@@ -15,13 +15,25 @@ function getImportString(imports: Imports): string {
   }
 }
 
-export function createObjectType(code: string, imports: Imports = ['Field']): string {
-  return `import { ObjectType, ${getImportString(imports)} } from 'type-graphql';
+function createClass(decoratorName: string, code: string, imports: Imports): string {
+  return `import { ${decoratorName}, ${getImportString(imports)} } from 'type-graphql';
 
-@ObjectType()
+@${decoratorName}()
 class MyClass{
   ${indent(code, CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET)}
 }`;
+}
+
+export function createObjectType(code: string, imports: Imports = ['Field']): string {
+  return createClass('ObjectType', code, imports);
+}
+
+export function createInputType(code: string, imports: Imports = ['Field']): string {
+  return createClass('InputType', code, imports);
+}
+
+export function createArgsType(code: string, imports: Imports = ['Field']): string {
+  return createClass('ArgsType', code, imports);
 }
 
 export const CREATE_RESOLVER_CODE_LINE_OFFSET = 5;

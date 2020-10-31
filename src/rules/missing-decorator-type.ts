@@ -6,7 +6,7 @@ type Options = ['nontrivial' | 'nontrivial-and-number' | 'all'];
 type MessageIds = 'missingNonTrivialDecoratorType' | 'missingNumberDecoratorType' | 'missingDecoratorType';
 
 export default createRule<Options, MessageIds>({
-  name: 'no-missing-decorator-type',
+  name: 'missing-decorator-type',
   meta: {
     docs: {
       description: 'Warns when a decorator is missing a type',

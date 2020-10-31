@@ -3,6 +3,8 @@ import { Type, Symbol as TSSymbol, UnionType, TypeFlags, TypeChecker, SymbolFlag
 
 export interface DecoratedProps {
   kind: AST_NODE_TYPES;
+  node: TSESTree.Node;
+  typeNode?: TSESTree.TypeNode;
   type: DecoratedType | null;
 }
 
@@ -13,7 +15,7 @@ export interface ValidDecoratedType {
   name: string;
   isNullable?: boolean;
   isUndefinable?: boolean;
-  isArray?: boolean;
+  isArray: boolean;
   isArrayNullable?: boolean;
   isArrayUndefinable?: boolean;
   isPromise?: boolean;
@@ -67,14 +69,24 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
   const parent = decoratorNode.parent as TSESTree.Node;
   const tsNode = parserServices.esTreeNodeToTSNodeMap.get(parent);
   let type = checker.getTypeAtLocation(tsNode);
+  let typeNode: TSESTree.TypeNode | undefined = undefined;
 
   if (parent.type === AST_NODE_TYPES.MethodDefinition && parent.kind === 'method') {
     type = type.getCallSignatures()[0].getReturnType();
+    typeNode = parent.value.returnType?.typeAnnotation;
+  } else if (
+    parent.type === AST_NODE_TYPES.ClassProperty ||
+    parent.type === AST_NODE_TYPES.Identifier ||
+    parent.type === AST_NODE_TYPES.ObjectPattern
+  ) {
+    typeNode = parent.typeAnnotation?.typeAnnotation;
   }
 
   return {
     kind: parent.type,
     type: getDecoratedType(type, getPossibleUnionName(parent)),
+    node: parent,
+    typeNode,
   };
 }
 
@@ -144,6 +156,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
               name: possibleUnionName,
               isNullable,
               isUndefinable,
+              isArray: false,
             };
           } else {
             return {
@@ -191,6 +204,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
       name: 'number',
       isNullable,
       isUndefinable,
+      isArray: false,
     };
   } else if (type.flags === TypeFlags.String) {
     return {
@@ -198,6 +212,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
       name: 'string',
       isNullable,
       isUndefinable,
+      isArray: false,
     };
   } else if (type.flags & TypeFlags.Boolean || isBooleanUnion) {
     return {
@@ -205,6 +220,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
       name: 'boolean',
       isNullable,
       isUndefinable,
+      isArray: false,
     };
   }
 
@@ -222,6 +238,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
       name: symbol.name,
       isNullable,
       isUndefinable,
+      isArray: false,
     };
   }
 

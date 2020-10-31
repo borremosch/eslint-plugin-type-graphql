@@ -28,7 +28,7 @@ export default createRule<Options, MessageIds>({
     const parserServices = ESLintUtils.getParserServices(context);
     const checker = parserServices.program.getTypeChecker();
 
-    return getTypeGraphQLVisitors(checker, parserServices, ({ decoratorProps, decoratedProps }) => {
+    return getTypeGraphQLVisitors(checker, parserServices, ({ decoratedProps }) => {
       // Check whether the decorated type is too complex
       if (!decoratedProps.type || decoratedProps.type.isValid) {
         return;
@@ -36,12 +36,12 @@ export default createRule<Options, MessageIds>({
 
       if ((decoratedProps.type as InvalidDecoratedType).unionType) {
         context.report({
-          node: decoratorProps.node,
+          node: decoratedProps.typeNode ?? decoratedProps.node,
           messageId: 'unionType',
         });
       } else {
         context.report({
-          node: decoratorProps.node,
+          node: decoratedProps.typeNode ?? decoratedProps.node,
           messageId: 'invalidDecoratedType',
         });
       }

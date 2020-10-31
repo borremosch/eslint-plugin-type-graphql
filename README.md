@@ -40,8 +40,9 @@ Create an ESLint configuration and add the plugin rules like so:
 
 - [invalid-decorated-type](docs/rules/invalid-decorated-type.md): Find errors in types that are decorated
 - [invalid-decorator-type](docs/rules/invalid-decorator-type.md): Find errors in decorators
-- [no-missing-decorator-type](docs/rules/no-missing-decorator-type.md): Find missing type functions in decorators
-- [prefer-null-over-undefined](docs/rules/prefer-null-over-undefined.md): Warn when undefined is used instead of null
+- [invalid-nullable-input-type](docs/rules/invalid-nullable-input-type.md): Prevent errors on nullable input types
+- [invalid-nullable-output-type](docs/rules/invalid-nullable-output-type.md): Prevent errors on nullable output types
+- [missing-decorator-type](docs/rules/missing-decorator-type.md): Find missing type functions in decorators
 - [wrong-decorator-signature](docs/rules/wrong-decorator-signature.md): Find mismatches between decorators and decorated types
 
 ## License
