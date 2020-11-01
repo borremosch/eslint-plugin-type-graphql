@@ -115,6 +115,16 @@ class MyClass{
       ],
     },
     {
+      code: createArgsType("@Field(() => String, { nullable: true })\nmyString = 'test';"),
+      errors: [
+        {
+          messageId: 'invalidNullableInputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 1,
+        },
+      ],
+    },
+    {
       code: createInputType('@Field(() => [String], { nullable: true })\nmyArray!: string[] | null;'),
       errors: [
         {

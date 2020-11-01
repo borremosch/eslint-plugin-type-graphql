@@ -161,6 +161,16 @@ class MyResolver {
       ],
     },
     {
+      code: createObjectType("@Field()\nget myUnion() { return 2 > 1 ? true : 'value'; }"),
+      errors: [
+        {
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 1,
+          messageId: 'unionType',
+        },
+      ],
+    },
+    {
       code: createResolver(
         "@Mutation(() => [String])\nmyMutation(): Array<Promise<string>>{ return [Promise.resolve('value')]; }",
         ['Mutation']
@@ -169,6 +179,18 @@ class MyResolver {
         {
           line: CREATE_RESOLVER_CODE_LINE_OFFSET + 1,
           column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 15,
+          messageId: 'invalidDecoratedType',
+        },
+      ],
+    },
+    {
+      code: createResolver("@Mutation(() => [String])\nmyMutation() { return [Promise.resolve('value')]; }", [
+        'Mutation',
+      ]),
+      errors: [
+        {
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 1,
           messageId: 'invalidDecoratedType',
         },
       ],

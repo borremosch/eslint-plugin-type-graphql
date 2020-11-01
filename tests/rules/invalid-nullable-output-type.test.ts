@@ -208,6 +208,19 @@ ruleTester.run('invalid-nullable-output-type', rule, {
     },
     {
       code: createResolver(
+        "@Query(() => String, { nullable: true })\nmyQuery(@Arg('myString', () => String, { nullable: true }) myString: string | undefined) { return 'a' as string | undefined }",
+        ['Query', 'Arg']
+      ),
+      errors: [
+        {
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET + 0,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 1,
+          messageId: 'invalidNullableOutputType',
+        },
+      ],
+    },
+    {
+      code: createResolver(
         "@Query(() => String, { nullable: true })\nmyQuery(@Arg('myString', () => [String], { nullable: 'items' }) myString: Array<string | null>): string | undefined | null{ return 'value'; }",
         ['Query', 'Arg']
       ),
