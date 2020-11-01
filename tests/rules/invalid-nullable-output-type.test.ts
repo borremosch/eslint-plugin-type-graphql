@@ -24,14 +24,6 @@ const ruleTester = new RuleTester({
   parser: '@typescript-eslint/parser',
 });
 
-const DEFAULT_ERRORS = [
-  {
-    messageId: 'invalidNullableOutputType',
-    line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
-    column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 1,
-  },
-];
-
 ruleTester.run('invalid-nullable-output-type', rule, {
   valid: [
     createObjectType('@Field(() => String)\nmyString!: string;'),
@@ -97,49 +89,109 @@ ruleTester.run('invalid-nullable-output-type', rule, {
   invalid: [
     {
       code: createObjectType('@Field(() => String, { nullable: true })\nmyString!: string | undefined;'),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableOutputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 12,
+        },
+      ],
     },
     {
       code: createObjectType('@Field(() => String, { nullable: true })\nmyString!: string | null | undefined;'),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableOutputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 12,
+        },
+      ],
     },
     {
       code: createObjectType('@Field(() => [String], { nullable: true })\nmyArray!: string[] | undefined;'),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableOutputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createObjectType('@Field(() => [String], { nullable: true })\nmyArray!: string[] | null | undefined;'),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableOutputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createObjectType("@Field(() => [String], { nullable: 'items' })\nmyArray!: Array<string | undefined>;"),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableOutputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createObjectType(
         "@Field(() => [String], { nullable: 'items' })\nmyArray!: Array<string | null | undefined>;"
       ),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableOutputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createObjectType('@Field(() => [String], { nullable: true })\nmyArray!: Array<string> | undefined;'),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableOutputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createObjectType('@Field(() => [String], { nullable: true })\nmyArray!: Array<string> | null | undefined;'),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableOutputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createObjectType(
         "@Field(() => [String], { nullable: 'itemsAndList' })\nmyArray!: Array<string | undefined> | undefined;"
       ),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableOutputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createObjectType(
         "@Field(() => [String], { nullable: 'itemsAndList' })\nmyArray!: Array<string | null | undefined> | null | undefined;"
       ),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableOutputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createResolver(
@@ -148,8 +200,8 @@ ruleTester.run('invalid-nullable-output-type', rule, {
       ),
       errors: [
         {
-          line: CREATE_RESOLVER_CODE_LINE_OFFSET,
-          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 1,
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET + 1,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 91,
           messageId: 'invalidNullableOutputType',
         },
       ],
@@ -161,8 +213,8 @@ ruleTester.run('invalid-nullable-output-type', rule, {
       ),
       errors: [
         {
-          line: CREATE_RESOLVER_CODE_LINE_OFFSET,
-          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 1,
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET + 1,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 98,
           messageId: 'invalidNullableOutputType',
         },
       ],
@@ -176,8 +228,8 @@ ruleTester.run('invalid-nullable-output-type', rule, {
         ),
       errors: [
         {
-          line: CREATE_RESOLVER_CODE_LINE_OFFSET + 1,
-          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 1,
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET + 2,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 81,
           messageId: 'invalidNullableOutputType',
         },
       ],

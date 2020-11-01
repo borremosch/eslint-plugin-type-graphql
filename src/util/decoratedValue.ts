@@ -71,15 +71,19 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
   let type = checker.getTypeAtLocation(tsNode);
   let typeNode: TSESTree.TypeNode | undefined = undefined;
 
-  if (parent.type === AST_NODE_TYPES.MethodDefinition && parent.kind === 'method') {
-    type = type.getCallSignatures()[0].getReturnType();
+  if (parent.type === AST_NODE_TYPES.MethodDefinition) {
     typeNode = parent.value.returnType?.typeAnnotation;
+    if (parent.kind === 'method') {
+      type = type.getCallSignatures()[0].getReturnType();
+    }
   } else if (
     parent.type === AST_NODE_TYPES.ClassProperty ||
     parent.type === AST_NODE_TYPES.Identifier ||
     parent.type === AST_NODE_TYPES.ObjectPattern
   ) {
     typeNode = parent.typeAnnotation?.typeAnnotation;
+  } else {
+    console.log(parent.type);
   }
 
   return {

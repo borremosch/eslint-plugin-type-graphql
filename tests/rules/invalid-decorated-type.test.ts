@@ -22,11 +22,6 @@ const ruleTester = new RuleTester({
   parser: '@typescript-eslint/parser',
 });
 
-const DEFAULT_ERROR_LOCATION = {
-  line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
-  column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 1,
-};
-
 ruleTester.run('invalid-decorated-type', rule, {
   valid: [
     createObjectType('@Field(() => String)\nmyString!: string;'),
@@ -97,31 +92,73 @@ class MyResolver {
   invalid: [
     {
       code: createObjectType('@Field()\nmyUnion!: unknown;'),
-      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
+      errors: [
+        {
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+          messageId: 'invalidDecoratedType',
+        },
+      ],
     },
     {
       code: createObjectType('@Field()\nmyUnion!: undefined | null;'),
-      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
+      errors: [
+        {
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+          messageId: 'invalidDecoratedType',
+        },
+      ],
     },
     {
       code: createObjectType('@Field()\nmyUnion!: string | boolean;'),
-      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'unionType' }],
+      errors: [
+        {
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+          messageId: 'unionType',
+        },
+      ],
     },
     {
       code: createObjectType('@Field()\nmyArrayOfPromises!: Array<Promise<string>>;'),
-      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
+      errors: [
+        {
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 21,
+          messageId: 'invalidDecoratedType',
+        },
+      ],
     },
     {
       code: createObjectType('@Field()\nmyArrayOfArrays!: string[][];'),
-      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
+      errors: [
+        {
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 19,
+          messageId: 'invalidDecoratedType',
+        },
+      ],
     },
     {
       code: createObjectType('@Field()\nmyArrayOfArrays!: Promise<string[][]>;'),
-      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'invalidDecoratedType' }],
+      errors: [
+        {
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 19,
+          messageId: 'invalidDecoratedType',
+        },
+      ],
     },
     {
       code: createObjectType("@Field()\nget myUnion(): string | boolean { return 'value'; }"),
-      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'unionType' }],
+      errors: [
+        {
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 16,
+          messageId: 'unionType',
+        },
+      ],
     },
     {
       code: createResolver(
@@ -130,8 +167,8 @@ class MyResolver {
       ),
       errors: [
         {
-          line: CREATE_RESOLVER_CODE_LINE_OFFSET,
-          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 1,
+          line: CREATE_RESOLVER_CODE_LINE_OFFSET + 1,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 15,
           messageId: 'invalidDecoratedType',
         },
       ],
@@ -144,7 +181,7 @@ class MyResolver {
       errors: [
         {
           line: CREATE_RESOLVER_CODE_LINE_OFFSET + 1,
-          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 12,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 54,
           messageId: 'invalidDecoratedType',
         },
       ],
@@ -157,7 +194,7 @@ class MyResolver {
       errors: [
         {
           line: CREATE_RESOLVER_CODE_LINE_OFFSET + 1,
-          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 12,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 54,
           messageId: 'invalidDecoratedType',
         },
       ],
@@ -172,7 +209,7 @@ class MyResolver {
       errors: [
         {
           line: CREATE_RESOLVER_CODE_LINE_OFFSET + 3,
-          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 12,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 37,
           messageId: 'unionType',
         },
       ],
@@ -190,8 +227,8 @@ class MyClass {
 }`,
       errors: [
         {
-          line: 8,
-          column: 3,
+          line: 9,
+          column: 13,
           messageId: 'unionType',
         },
       ],
@@ -209,8 +246,8 @@ class MyResolver {
 }`,
       errors: [
         {
-          line: 8,
-          column: 3,
+          line: 9,
+          column: 14,
           messageId: 'unionType',
         },
       ],
@@ -228,8 +265,8 @@ class MyClass {
 }`,
       errors: [
         {
-          line: 8,
-          column: 3,
+          line: 9,
+          column: 13,
           messageId: 'unionType',
         },
       ],
@@ -247,8 +284,8 @@ class MyResolver {
 }`,
       errors: [
         {
-          line: 8,
-          column: 3,
+          line: 9,
+          column: 14,
           messageId: 'unionType',
         },
       ],

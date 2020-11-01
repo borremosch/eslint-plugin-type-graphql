@@ -24,14 +24,6 @@ const ruleTester = new RuleTester({
   parser: '@typescript-eslint/parser',
 });
 
-const DEFAULT_ERRORS = [
-  {
-    messageId: 'invalidNullableInputType',
-    line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET,
-    column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 1,
-  },
-];
-
 ruleTester.run('invalid-nullable-input-type', rule, {
   valid: [
     createObjectType('@Field()\nmyString!: string;'),
@@ -104,43 +96,97 @@ class MyClass{
   invalid: [
     {
       code: createInputType('@Field(() => String, { nullable: true })\nmyString!: string | null;'),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableInputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 12,
+        },
+      ],
     },
     {
       code: createArgsType('@Field(() => String, { nullable: true })\nmyString!: string | undefined;'),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableInputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 12,
+        },
+      ],
     },
     {
       code: createInputType('@Field(() => [String], { nullable: true })\nmyArray!: string[] | null;'),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableInputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createArgsType('@Field(() => [String], { nullable: true })\nmyArray!: string[] | undefined;'),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableInputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createInputType('@Field(() => [String], { nullable: true })\nmyArray?: string[];'),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableInputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createArgsType("@Field(() => [String], { nullable: 'items' })\nmyArray!: Array<string | null>;"),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableInputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createInputType("@Field(() => [String], { nullable: 'items' })\nmyArray!: Array<string | undefined>;"),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableInputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createArgsType(
         "@Field(() => [String], { nullable: 'itemsAndList' })\nmyArray!: Array<string | null | undefined> | undefined;"
       ),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableInputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createInputType(
         "@Field(() => [String], { nullable: 'itemsAndList' })\nmyArray!: Array<string | undefined> | null | undefined;"
       ),
-      errors: DEFAULT_ERRORS,
+      errors: [
+        {
+          messageId: 'invalidNullableInputType',
+          line: CREATE_OBJECT_TYPE_CODE_LINE_OFFSET + 1,
+          column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 11,
+        },
+      ],
     },
     {
       code: createResolver(
@@ -150,7 +196,7 @@ class MyClass{
       errors: [
         {
           line: CREATE_RESOLVER_CODE_LINE_OFFSET + 1,
-          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 9,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 70,
           messageId: 'invalidNullableInputType',
         },
       ],
@@ -163,7 +209,7 @@ class MyClass{
       errors: [
         {
           line: CREATE_RESOLVER_CODE_LINE_OFFSET + 1,
-          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 9,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 75,
           messageId: 'invalidNullableInputType',
         },
       ],
@@ -178,7 +224,7 @@ class MyClass{
       errors: [
         {
           line: CREATE_RESOLVER_CODE_LINE_OFFSET + 2,
-          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 9,
+          column: CREATE_RESOLVER_CODE_COLUMN_OFFSET + 61,
           messageId: 'invalidNullableInputType',
         },
       ],
