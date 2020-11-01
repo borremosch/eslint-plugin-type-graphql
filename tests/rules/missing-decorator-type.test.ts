@@ -1,5 +1,5 @@
 import path from 'path';
-import rule from '../../src/rules/no-missing-decorator-type';
+import rule from '../../src/rules/missing-decorator-type';
 import { ESLintUtils } from '@typescript-eslint/experimental-utils';
 const { RuleTester } = ESLintUtils;
 import {
@@ -27,7 +27,7 @@ const DEFAULT_ERROR_LOCATION = {
   column: CREATE_OBJECT_TYPE_CODE_COLUMN_OFFSET + 1,
 };
 
-ruleTester.run('no-missing-decorator-type', rule, {
+ruleTester.run('missing-decorator-type', rule, {
   valid: [
     createObjectType('@Field()\nmyString!: string;'),
     createObjectType('@Field()\nmyBoolean!: boolean;'),
@@ -72,7 +72,7 @@ ruleTester.run('no-missing-decorator-type', rule, {
   ],
 });
 
-ruleTester.run('no-missing-decorator-type - nontrivial', rule, {
+ruleTester.run('missing-decorator-type - nontrivial', rule, {
   valid: [
     {
       code: createObjectType('@Field()\nmyNumber!: number;'),
@@ -82,7 +82,7 @@ ruleTester.run('no-missing-decorator-type - nontrivial', rule, {
   invalid: [],
 });
 
-ruleTester.run('no-missing-decorator-type - all', rule, {
+ruleTester.run('missing-decorator-type - all', rule, {
   valid: [
     {
       code:

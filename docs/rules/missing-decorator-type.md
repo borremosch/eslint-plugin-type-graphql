@@ -1,4 +1,4 @@
-# Warns when a type argument is missing on a decorator<br/>(`no-missing-decorator-type`)
+# Warns when a type argument is missing on a decorator<br/>(`missing-decorator-type`)
 
 ## Rule Details
 

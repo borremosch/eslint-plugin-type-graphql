@@ -6,15 +6,26 @@ const OPERATION_DECORATORS: string[] = ['Mutation', 'Query', 'Subscription'];
 const ARG_DECORATOR = 'Arg';
 const ARGS_DECORATOR = 'Args';
 const FIELD_DECORATOR = 'Field';
-const ALL_DECORATORS = [...OPERATION_DECORATORS, ARG_DECORATOR, ARGS_DECORATOR, FIELD_DECORATOR];
+const ALL_FIELD_DECORATORS = [...OPERATION_DECORATORS, ARG_DECORATOR, ARGS_DECORATOR, FIELD_DECORATOR];
+
+const INPUT_TYPE_DECORATOR = 'InputType';
+const ARGS_TYPE_DECORATOR = 'ArgsType';
+const OBJECT_TYPE_DECORATOR = 'ObjectType';
+const INTERFACE_TYPE_DECORATOR = 'InterfaceType';
+
+const PARENT_INPUT_DECORATORS = [INPUT_TYPE_DECORATOR, ARGS_TYPE_DECORATOR];
+const PARENT_OUTPUT_DECORATORS = [OBJECT_TYPE_DECORATOR, INTERFACE_TYPE_DECORATOR];
 
 export function decoratorHasName(decoratorName: string): boolean {
   return decoratorName === ARG_DECORATOR;
 }
 
+type Direction = 'input' | 'output' | undefined;
+
 export interface DecoratorProps {
   name: string;
   type: DecoratorType | null | undefined;
+  direction: Direction;
   node: TSESTree.Decorator;
 }
 
@@ -25,7 +36,7 @@ export interface ValidDecoratorType {
   name: string;
   originalName: string | null;
   isNullable?: boolean;
-  isArray?: boolean;
+  isArray: boolean;
   isArrayNullable?: boolean;
 }
 
@@ -46,16 +57,60 @@ export function getDecoratorProps({ node, typeGraphQLContext }: GetDecoratorType
   }
 
   const name = typeGraphQLContext.getTypeGraphQLImportedName(node.expression.callee);
-  if (!name || !ALL_DECORATORS.includes(name)) {
+  if (!name || !ALL_FIELD_DECORATORS.includes(name)) {
     // This is not a known TypeGraphQL decorator
     return null;
+  }
+
+  let direction: Direction = undefined;
+  if (OPERATION_DECORATORS.includes(name)) {
+    direction = 'output';
+  } else if ([ARG_DECORATOR, ARGS_DECORATOR].includes(name)) {
+    direction = 'input';
+  } else {
+    //  name === FIELD_DECORATOR
+    const parentName = getDecoratorParentName({ node, typeGraphQLContext }) ?? '';
+    if (PARENT_INPUT_DECORATORS.includes(parentName)) {
+      direction = 'input';
+    } else if (PARENT_OUTPUT_DECORATORS.includes(parentName)) {
+      direction = 'output';
+    }
   }
 
   return {
     name: name,
     type: getDecoratorType(name, node, typeGraphQLContext),
+    direction,
     node,
   };
+}
+
+interface GetDecoratorParentNameProps {
+  node: TSESTree.Decorator;
+  typeGraphQLContext: TypeGraphQLContext;
+}
+
+function getDecoratorParentName({ node, typeGraphQLContext }: GetDecoratorParentNameProps): string | null {
+  let currentNode: TSESTree.Node = node;
+
+  while (currentNode.parent) {
+    currentNode = currentNode.parent;
+
+    if (currentNode.type === AST_NODE_TYPES.ClassDeclaration) {
+      const decorators = currentNode.decorators ?? [];
+      for (const decorator of decorators) {
+        if (decorator.expression.type !== AST_NODE_TYPES.CallExpression) {
+          continue;
+        }
+        const name = typeGraphQLContext.getTypeGraphQLImportedName(decorator.expression.callee);
+        if (name) {
+          return name;
+        }
+      }
+    }
+  }
+
+  return null;
 }
 
 function getDecoratorType(
