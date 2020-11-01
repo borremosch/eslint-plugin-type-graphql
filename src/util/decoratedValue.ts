@@ -82,8 +82,6 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
     parent.type === AST_NODE_TYPES.ObjectPattern
   ) {
     typeNode = parent.typeAnnotation?.typeAnnotation;
-  } else {
-    console.log(parent.type);
   }
 
   return {
