@@ -1,6 +1,8 @@
 [![npm version](https://badge.fury.io/js/eslint-plugin-type-graphql.svg)](https://badge.fury.io/js/eslint-plugin-type-graphql)
 ![build](https://github.com/borremosch/eslint-plugin-type-graphql/workflows/Node.js%20CI/badge.svg)
 [![codecov](https://codecov.io/gh/borremosch/eslint-plugin-type-graphql/branch/main/graph/badge.svg)](https://codecov.io/gh/borremosch/eslint-plugin-type-graphql)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+![language](https://img.shields.io/github/languages/top/borremosch/eslint-plugin-type-graphql)
 
 # eslint-plugin-type-graphql
 
