@@ -76,12 +76,9 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
     if (parent.kind === 'method') {
       type = type.getCallSignatures()[0].getReturnType();
     }
-  } else if (
-    parent.type === AST_NODE_TYPES.ClassProperty ||
-    parent.type === AST_NODE_TYPES.Identifier ||
-    parent.type === AST_NODE_TYPES.ObjectPattern
-  ) {
-    typeNode = parent.typeAnnotation?.typeAnnotation;
+  } else {
+    typeNode = (parent as TSESTree.ClassProperty | TSESTree.Identifier | TSESTree.ObjectPattern).typeAnnotation
+      ?.typeAnnotation;
   }
 
   return {
