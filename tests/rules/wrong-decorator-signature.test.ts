@@ -168,6 +168,10 @@ ruleTester.run('wrong-decorator-signature', rule, {
       ],
     },
     {
+      code: createObjectType('@Field(() => [String])\nmyArray: [string];'),
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'wrongDecoratorType' }],
+    },
+    {
       code: createObjectType('@Field(() => BigInt)\nmyInt!: number'),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'wrongDecoratorType' }],
     },
