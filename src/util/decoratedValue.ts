@@ -73,8 +73,8 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
 
   if (parent.type === AST_NODE_TYPES.MethodDefinition) {
     typeNode = parent.value.returnType?.typeAnnotation;
-    if (parent.kind === 'method') {
-      type = type.getCallSignatures()[0]?.getReturnType();
+    if (parent.kind === 'method' && type.getCallSignatures()[0]) {
+      type = type.getCallSignatures()[0].getReturnType();
     }
   } else {
     typeNode = (parent as TSESTree.ClassProperty | TSESTree.Identifier | TSESTree.ObjectPattern).typeAnnotation
@@ -83,7 +83,7 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
 
   return {
     kind: parent.type,
-    type: type && getDecoratedType(type, getPossibleUnionName(parent)),
+    type: getDecoratedType(type, getPossibleUnionName(parent)),
     node: parent,
     typeNode,
   };
