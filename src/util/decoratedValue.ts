@@ -1,5 +1,5 @@
 import { AST_NODE_TYPES, ParserServices, TSESTree } from '@typescript-eslint/experimental-utils';
-import { Type, Symbol as TSSymbol, UnionType, TypeFlags, TypeChecker, SymbolFlags } from 'typescript';
+import { SymbolFlags, Symbol as TSSymbol, Type, TypeChecker, TypeFlags, UnionType } from 'typescript';
 
 export interface DecoratedProps {
   kind: AST_NODE_TYPES;
@@ -74,7 +74,7 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
   if (parent.type === AST_NODE_TYPES.MethodDefinition) {
     typeNode = parent.value.returnType?.typeAnnotation;
     if (parent.kind === 'method') {
-      type = type.getCallSignatures()[0].getReturnType();
+      type = type.getCallSignatures()[0]?.getReturnType();
     }
   } else {
     typeNode = (parent as TSESTree.ClassProperty | TSESTree.Identifier | TSESTree.ObjectPattern).typeAnnotation
@@ -83,7 +83,7 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
 
   return {
     kind: parent.type,
-    type: getDecoratedType(type, getPossibleUnionName(parent)),
+    type: type && getDecoratedType(type, getPossibleUnionName(parent)),
     node: parent,
     typeNode,
   };
@@ -98,7 +98,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
   }
 
   // Check wheter the type is a promise
-  if (type.flags === TypeFlags.Object && type.symbol.escapedName === 'Promise') {
+  if (type.flags === TypeFlags.Object && type.symbol?.escapedName === 'Promise') {
     const typeArguments = ((type as unknown) as { resolvedTypeArguments: Type[] }).resolvedTypeArguments;
     const innerType = getDecoratedType(typeArguments[0], possibleUnionName);
     if (!innerType?.isValid) {
@@ -171,7 +171,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
   }
 
   // Check whether the type is an array
-  if (type.flags === TypeFlags.Object && type.symbol.name === 'Array') {
+  if (type.flags === TypeFlags.Object && type.symbol?.name === 'Array') {
     const typeArguments = ((type as unknown) as { resolvedTypeArguments: Type[] }).resolvedTypeArguments;
     const innerType = getDecoratedType(typeArguments[0], possibleUnionName);
     if (!innerType) {
@@ -227,14 +227,14 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
   if (type.flags & TypeFlags.EnumLiteral || type.flags === TypeFlags.TypeParameter || type.flags === TypeFlags.Object) {
     let symbol = type.symbol as EnumLiteralSymbol;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    if (symbol.flags === SymbolFlags.EnumMember && symbol.parent!.flags === SymbolFlags.RegularEnum) {
+    if (symbol?.flags === SymbolFlags.EnumMember && symbol.parent!.flags === SymbolFlags.RegularEnum) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       symbol = symbol.parent!;
     }
 
     return {
       isValid: true,
-      name: symbol.name,
+      name: symbol?.name,
       isNullable,
       isUndefinable,
       isArray: false,
