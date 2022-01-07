@@ -34,7 +34,9 @@ Example configuration:
   "type-graphql/wrong-decorator-signature": [
     "error",
     {
-      "number": "BigInt"
+      "customTypes": {
+        "number": "BigInt"
+      }
     }
   ]
 }
