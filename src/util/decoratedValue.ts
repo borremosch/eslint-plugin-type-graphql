@@ -38,7 +38,7 @@ interface GetDecoratedTypeProps {
 function getPossibleUnionName(typedNode: TSESTree.Node): string | undefined {
   let typeAnnotation: TSESTree.TypeNode | undefined;
 
-  if (typedNode.type === AST_NODE_TYPES.Identifier) {
+  if (typedNode.type === AST_NODE_TYPES.Identifier || typedNode.type === AST_NODE_TYPES.PropertyDefinition) {
     typeAnnotation = typedNode.typeAnnotation?.typeAnnotation;
   } else if (typedNode.type === AST_NODE_TYPES.MethodDefinition && typedNode.kind === 'method') {
     typeAnnotation = typedNode.value.returnType?.typeAnnotation;
