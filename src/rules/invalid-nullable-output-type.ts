@@ -1,5 +1,6 @@
-import { createRule } from '../util/createRule';
 import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+
+import { createRule } from '../util/createRule';
 import { getTypeGraphQLVisitors } from '../util/typeGraphQLUtil';
 
 type Options = [];
@@ -10,13 +11,13 @@ export default createRule<Options, MessageIds>({
   meta: {
     docs: {
       description: 'Warns when the nullable type of an output type is invalid',
-      category: 'Best Practices',
       recommended: 'warn',
       requiresTypeChecking: true,
     },
     messages: {
       invalidNullableOutputType: 'Nullable output types should be defined as Type | null',
     },
+    hasSuggestions: true,
     schema: [],
     type: 'problem',
   },

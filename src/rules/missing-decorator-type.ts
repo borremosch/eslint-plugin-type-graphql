@@ -1,5 +1,6 @@
-import { createRule } from '../util/createRule';
 import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+
+import { createRule } from '../util/createRule';
 import { getTypeGraphQLVisitors } from '../util/typeGraphQLUtil';
 
 type Options = ['nontrivial' | 'nontrivial-and-number' | 'all'];
@@ -10,7 +11,6 @@ export default createRule<Options, MessageIds>({
   meta: {
     docs: {
       description: 'Warns when a decorator is missing a type',
-      category: 'Possible Errors',
       recommended: 'error',
       requiresTypeChecking: true,
     },
@@ -20,6 +20,7 @@ export default createRule<Options, MessageIds>({
         'No type function specified for number type (specify TypeGraphQL `Int` or `Float` type)',
       missingDecoratorType: 'This decorator does not explicitly specify a type',
     },
+    hasSuggestions: true,
     schema: [
       {
         type: 'string',
