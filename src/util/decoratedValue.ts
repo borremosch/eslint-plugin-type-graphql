@@ -38,7 +38,7 @@ interface GetDecoratedTypeProps {
 function getPossibleUnionName(typedNode: TSESTree.Node): string | undefined {
   let typeAnnotation: TSESTree.TypeNode | undefined;
 
-  if (typedNode.type === AST_NODE_TYPES.ObjectPattern) {
+  if (typedNode.type === AST_NODE_TYPES.Identifier) {
     typeAnnotation = typedNode.typeAnnotation?.typeAnnotation;
   } else if (typedNode.type === AST_NODE_TYPES.MethodDefinition && typedNode.kind === 'method') {
     typeAnnotation = typedNode.value.returnType?.typeAnnotation;
@@ -77,8 +77,7 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
       type = type.getCallSignatures()[0].getReturnType();
     }
   } else {
-    typeNode = (parent as TSESTree.ObjectPattern | TSESTree.Identifier | TSESTree.ObjectPattern).typeAnnotation
-      ?.typeAnnotation;
+    typeNode = (parent as TSESTree.Identifier | TSESTree.ObjectPattern).typeAnnotation?.typeAnnotation;
   }
 
   return {
