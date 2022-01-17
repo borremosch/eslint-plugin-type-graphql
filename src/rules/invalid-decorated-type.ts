@@ -1,7 +1,8 @@
-import { createRule } from '../util/createRule';
 import { ESLintUtils } from '@typescript-eslint/experimental-utils';
-import { getTypeGraphQLVisitors } from '../util/typeGraphQLUtil';
+
+import { createRule } from '../util/createRule';
 import { InvalidDecoratedType } from '../util/decoratedValue';
+import { getTypeGraphQLVisitors } from '../util/typeGraphQLUtil';
 
 type Options = [];
 type MessageIds = 'invalidDecoratedType' | 'unionType';
@@ -11,7 +12,6 @@ export default createRule<Options, MessageIds>({
   meta: {
     docs: {
       description: 'Warns when a TypeGraphQL decorated type is not expressable in GraphQL.',
-      category: 'Possible Errors',
       recommended: 'error',
       requiresTypeChecking: true,
     },
@@ -20,6 +20,7 @@ export default createRule<Options, MessageIds>({
       unionType:
         "Unexpected decorated union type. Use TypeGraphQL's `createUnionType` to create your union in combination with `typeof MyUnionType` as a type annotation",
     },
+    hasSuggestions: true,
     schema: [],
     type: 'problem',
   },

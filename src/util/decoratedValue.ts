@@ -38,7 +38,7 @@ interface GetDecoratedTypeProps {
 function getPossibleUnionName(typedNode: TSESTree.Node): string | undefined {
   let typeAnnotation: TSESTree.TypeNode | undefined;
 
-  if (typedNode.type === AST_NODE_TYPES.ClassProperty) {
+  if (typedNode.type === AST_NODE_TYPES.Identifier || typedNode.type === AST_NODE_TYPES.PropertyDefinition) {
     typeAnnotation = typedNode.typeAnnotation?.typeAnnotation;
   } else if (typedNode.type === AST_NODE_TYPES.MethodDefinition && typedNode.kind === 'method') {
     typeAnnotation = typedNode.value.returnType?.typeAnnotation;
@@ -77,8 +77,7 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
       type = type.getCallSignatures()[0].getReturnType();
     }
   } else {
-    typeNode = (parent as TSESTree.ClassProperty | TSESTree.Identifier | TSESTree.ObjectPattern).typeAnnotation
-      ?.typeAnnotation;
+    typeNode = (parent as TSESTree.Identifier | TSESTree.ObjectPattern).typeAnnotation?.typeAnnotation;
   }
 
   return {
@@ -99,7 +98,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
 
   // Check wheter the type is a promise
   if (type.flags === TypeFlags.Object && type.symbol?.escapedName === 'Promise') {
-    const typeArguments = ((type as unknown) as { resolvedTypeArguments: Type[] }).resolvedTypeArguments;
+    const typeArguments = (type as unknown as { resolvedTypeArguments: Type[] }).resolvedTypeArguments;
     const innerType = getDecoratedType(typeArguments[0], possibleUnionName);
     if (!innerType?.isValid) {
       return innerType;
@@ -172,7 +171,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
 
   // Check whether the type is an array
   if (type.flags === TypeFlags.Object && type.symbol?.name === 'Array') {
-    const typeArguments = ((type as unknown) as { resolvedTypeArguments: Type[] }).resolvedTypeArguments;
+    const typeArguments = (type as unknown as { resolvedTypeArguments: Type[] }).resolvedTypeArguments;
     const innerType = getDecoratedType(typeArguments[0], possibleUnionName);
     if (!innerType) {
       return null;

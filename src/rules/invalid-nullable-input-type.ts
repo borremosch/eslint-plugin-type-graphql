@@ -1,5 +1,6 @@
-import { createRule } from '../util/createRule';
 import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+
+import { createRule } from '../util/createRule';
 import { getTypeGraphQLVisitors } from '../util/typeGraphQLUtil';
 
 type Options = [];
@@ -10,7 +11,6 @@ export default createRule<Options, MessageIds>({
   meta: {
     docs: {
       description: 'Warns when undefined is used in a type that is decorated with a TypeGraphQL decorator',
-      category: 'Best Practices',
       recommended: 'warn',
       requiresTypeChecking: true,
     },
@@ -18,6 +18,7 @@ export default createRule<Options, MessageIds>({
       invalidNullableInputType: 'Nullable input types should be defined as Type | null | undefined',
     },
     schema: [],
+    hasSuggestions: true,
     type: 'problem',
   },
   defaultOptions: [],

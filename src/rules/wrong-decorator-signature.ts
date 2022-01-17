@@ -1,12 +1,13 @@
-import { createRule } from '../util/createRule';
 import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+
+import { createDisjunction } from '../util/createDisjunction';
+import { createRule } from '../util/createRule';
+import { ValidDecoratedType } from '../util/decoratedValue';
 import {
   getExpectedTypeGraphQLSignatures,
   getTypeGraphQLDecoratorSignature,
   getTypeGraphQLVisitors,
 } from '../util/typeGraphQLUtil';
-import { createDisjunction } from '../util/createDisjunction';
-import { ValidDecoratedType } from '../util/decoratedValue';
 
 type Options = [{ customTypes?: { [key: string]: string | string[] }; replaceDefaultTypes?: boolean }];
 type MessageIds =
@@ -21,7 +22,6 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         'Warns when the type in the TypeGraphQL decorator is incompatible with the corresponding TypeScript type.',
-      category: 'Possible Errors',
       recommended: 'error',
       requiresTypeChecking: true,
     },
@@ -33,6 +33,7 @@ export default createRule<Options, MessageIds>({
       superfluousDecoratorNullableOption:
         'Decorator options contains superfluous property {{ found }}. Decorated type is not nullable.',
     },
+    hasSuggestions: true,
     schema: [
       {
         type: 'object',

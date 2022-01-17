@@ -1,5 +1,6 @@
-import { createRule } from '../util/createRule';
 import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+
+import { createRule } from '../util/createRule';
 import { getTypeGraphQLVisitors } from '../util/typeGraphQLUtil';
 
 type Options = [];
@@ -10,7 +11,6 @@ export default createRule<Options, MessageIds>({
   meta: {
     docs: {
       description: 'Warns when TypeGraphQL decorator is poorly configured.',
-      category: 'Possible Errors',
       recommended: 'error',
       requiresTypeChecking: true,
     },
@@ -19,6 +19,7 @@ export default createRule<Options, MessageIds>({
       invalidTypeFunction: 'Type function is invalid',
       invalidNullableValue: 'Option { nullable: "{{ nullableValue }}" } may only be used on array types',
     },
+    hasSuggestions: true,
     schema: [],
     type: 'problem',
   },
