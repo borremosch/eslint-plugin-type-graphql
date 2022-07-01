@@ -70,19 +70,23 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
   const tsNode = parserServices.esTreeNodeToTSNodeMap.get(parent);
   let type = checker.getTypeAtLocation(tsNode);
   let typeNode: TSESTree.TypeNode | undefined = undefined;
+  let isPropertyOptional: boolean | undefined = false;
 
   if (parent.type === AST_NODE_TYPES.MethodDefinition) {
     typeNode = parent.value.returnType?.typeAnnotation;
     if (parent.kind === 'method' && type.getCallSignatures()[0]) {
       type = type.getCallSignatures()[0].getReturnType();
     }
+  } else if (parent.type === AST_NODE_TYPES.PropertyDefinition) {
+    isPropertyOptional = parent.optional;
+    typeNode = (parent as TSESTree.PropertyDefinition).typeAnnotation?.typeAnnotation;
   } else {
     typeNode = (parent as TSESTree.Identifier | TSESTree.ObjectPattern).typeAnnotation?.typeAnnotation;
   }
 
   return {
     kind: parent.type,
-    type: getDecoratedType(type, getPossibleUnionName(parent)),
+    type: getDecoratedType(type, getPossibleUnionName(parent), isPropertyOptional),
     node: parent,
     typeNode,
   };
@@ -90,7 +94,11 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
 
 type EnumLiteralSymbol = TSSymbol & { parent?: TSSymbol };
 
-function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType | null {
+function getDecoratedType(
+  type: Type,
+  possibleUnionName: string | undefined,
+  isPropertyOptional: boolean | undefined
+): DecoratedType | null {
   // Check whether TypeScript was able to determine the type
   if (type.flags === TypeFlags.Any) {
     return null;
@@ -99,7 +107,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
   // Check wheter the type is a promise
   if (type.flags === TypeFlags.Object && type.symbol?.escapedName === 'Promise') {
     const typeArguments = (type as unknown as { resolvedTypeArguments: Type[] }).resolvedTypeArguments;
-    const innerType = getDecoratedType(typeArguments[0], possibleUnionName);
+    const innerType = getDecoratedType(typeArguments[0], possibleUnionName, isPropertyOptional);
     if (!innerType?.isValid) {
       return innerType;
     }
@@ -172,7 +180,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
   // Check whether the type is an array
   if (type.flags === TypeFlags.Object && type.symbol?.name === 'Array') {
     const typeArguments = (type as unknown as { resolvedTypeArguments: Type[] }).resolvedTypeArguments;
-    const innerType = getDecoratedType(typeArguments[0], possibleUnionName);
+    const innerType = getDecoratedType(typeArguments[0], possibleUnionName, isPropertyOptional);
     if (!innerType) {
       return null;
     }
@@ -201,7 +209,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
       isValid: true,
       name: 'number',
       isNullable,
-      isUndefinable,
+      isUndefinable: isPropertyOptional,
       isArray: false,
     };
   } else if (type.flags === TypeFlags.String) {
@@ -209,7 +217,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
       isValid: true,
       name: 'string',
       isNullable,
-      isUndefinable,
+      isUndefinable: isPropertyOptional,
       isArray: false,
     };
   } else if (type.flags & TypeFlags.Boolean || isBooleanUnion) {
@@ -217,7 +225,7 @@ function getDecoratedType(type: Type, possibleUnionName?: string): DecoratedType
       isValid: true,
       name: 'boolean',
       isNullable,
-      isUndefinable,
+      isUndefinable: isPropertyOptional,
       isArray: false,
     };
   }
