@@ -243,7 +243,7 @@ function getDecoratedType(
       isValid: true,
       name: symbol?.name,
       isNullable,
-      isUndefinable,
+      isUndefinable: isUndefinable || isPropertyOptional,
       isArray: false,
     };
   }
