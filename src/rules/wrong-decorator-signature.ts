@@ -102,7 +102,7 @@ export default createRule<Options, MessageIds>({
               expected: expected.nullableOption,
             },
           });
-        } else if (!found.nullableOption) {
+        } else {
           context.report({
             node: decoratorProps.node,
             messageId: 'superfluousDecoratorNullableOption',
