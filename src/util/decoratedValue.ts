@@ -78,7 +78,7 @@ export function getDecoratedProps({ decoratorNode, checker, parserServices }: Ge
       type = type.getCallSignatures()[0].getReturnType();
     }
   } else if (parent.type === AST_NODE_TYPES.PropertyDefinition) {
-    isPropertyOptional = parent.optional;
+    isPropertyOptional = parent.optional || false;
     typeNode = (parent as TSESTree.PropertyDefinition).typeAnnotation?.typeAnnotation;
   } else {
     typeNode = (parent as TSESTree.Identifier | TSESTree.ObjectPattern).typeAnnotation?.typeAnnotation;
@@ -97,7 +97,7 @@ type EnumLiteralSymbol = TSSymbol & { parent?: TSSymbol };
 function getDecoratedType(
   type: Type,
   possibleUnionName: string | undefined,
-  isPropertyOptional: boolean | undefined
+  isPropertyOptional: boolean
 ): DecoratedType | null {
   // Check whether TypeScript was able to determine the type
   if (type.flags === TypeFlags.Any) {
@@ -209,7 +209,7 @@ function getDecoratedType(
       isValid: true,
       name: 'number',
       isNullable,
-      isUndefinable: isPropertyOptional,
+      isUndefinable: isUndefinable || isPropertyOptional,
       isArray: false,
     };
   } else if (type.flags === TypeFlags.String) {
@@ -217,7 +217,7 @@ function getDecoratedType(
       isValid: true,
       name: 'string',
       isNullable,
-      isUndefinable: isPropertyOptional,
+      isUndefinable: isUndefinable || isPropertyOptional,
       isArray: false,
     };
   } else if (type.flags & TypeFlags.Boolean || isBooleanUnion) {
@@ -225,7 +225,7 @@ function getDecoratedType(
       isValid: true,
       name: 'boolean',
       isNullable,
-      isUndefinable: isPropertyOptional,
+      isUndefinable: isUndefinable || isPropertyOptional,
       isArray: false,
     };
   }
