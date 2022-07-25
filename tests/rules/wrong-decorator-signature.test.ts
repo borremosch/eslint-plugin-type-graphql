@@ -115,11 +115,6 @@ ruleTester.run('wrong-decorator-signature', rule, {
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'missingDecoratorNullableOption' }],
     },
     {
-      code: createObjectType('@Field(() => String, { nullable: false })\nmyString?: string;'),
-      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'missingDecoratorNullableOption' }],
-    },
-
-    {
       code: createObjectType("@Field(() => [String], { nullable: 'items' })\nmyString!: string[] | null;"),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'wrongDecoratorNullableOption' }],
     },
