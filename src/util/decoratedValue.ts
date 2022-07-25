@@ -161,7 +161,7 @@ function getDecoratedType(
               isValid: true,
               name: possibleUnionName,
               isNullable,
-              isUndefinable: isUndefinable || isPropertyOptional,
+              isUndefinable,
               isArray: false,
             };
           } else {
@@ -180,7 +180,7 @@ function getDecoratedType(
   // Check whether the type is an array
   if (type.flags === TypeFlags.Object && type.symbol?.name === 'Array') {
     const typeArguments = (type as unknown as { resolvedTypeArguments: Type[] }).resolvedTypeArguments;
-    const innerType = getDecoratedType(typeArguments[0], possibleUnionName, isPropertyOptional);
+    const innerType = getDecoratedType(typeArguments[0], possibleUnionName, false);
     if (!innerType) {
       return null;
     }

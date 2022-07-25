@@ -110,6 +110,10 @@ ruleTester.run('wrong-decorator-signature', rule, {
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'wrongDecoratorType' }],
     },
     {
+      code: createObjectType('@Field(() => [String])\nmyArray?: Array<string>'),
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'missingDecoratorNullableOption' }],
+    },
+    {
       code: createObjectType('@Field(() => String, { nullable: true })\nmyString!: string;'),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'superfluousDecoratorNullableOption' }],
     },
