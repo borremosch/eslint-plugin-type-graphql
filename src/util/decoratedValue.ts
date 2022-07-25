@@ -161,7 +161,7 @@ function getDecoratedType(
               isValid: true,
               name: possibleUnionName,
               isNullable,
-              isUndefinable,
+              isUndefinable: isUndefinable || isPropertyOptional,
               isArray: false,
             };
           } else {
@@ -199,7 +199,7 @@ function getDecoratedType(
       ...innerType,
       isArray: true,
       isArrayNullable: isNullable,
-      isArrayUndefinable: isUndefinable,
+      isArrayUndefinable: isUndefinable || isPropertyOptional,
     };
   }
 
