@@ -35,12 +35,14 @@ ruleTester.run('wrong-decorator-signature', rule, {
     createObjectType('@Field(() => String, { nullable: true })\nmyString!: string | undefined;'),
     createObjectType("@Field(() => [String], { nullable: 'items' })\nmyArray!: Array<string | null>;"),
     createObjectType("@Field(() => [String], { nullable: 'items' })\nmyArray!: Array<string | undefined>;"),
+    createObjectType('@Field(() => [String], { nullable: true })\nmyArray?: Array<string>'),
     createObjectType(
       "@Field(() => [String], { nullable: 'itemsAndList' })\nmyArray!: Array<string | undefined> | null;"
     ),
     createObjectType(
       "@Field(() => [String], { nullable: 'itemsAndList' })\nmyArray!: Array<string | null> | undefined;"
     ),
+    createObjectType("@Field(() => [String], { nullable: 'itemsAndList' })\nmyArray?: Array<string | null>"),
     createObjectType('@Field(() => [String], { nullable: true })\nmyArray!: string[] | null;'),
     createObjectType('@Field(() => Boolean)\nmyBoolean!: boolean;'),
     createObjectType('@Field(() => Int)\nmyInt!: number;'),
@@ -98,6 +100,7 @@ ruleTester.run('wrong-decorator-signature', rule, {
       code: createObjectType('@Field(() => Int)\nmyDate!: Date;'),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'wrongDecoratorType' }],
     },
+
     {
       code: createObjectType('@Field(() => String)\nmyArray!: string[];'),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'wrongDecoratorType' }],
@@ -107,11 +110,31 @@ ruleTester.run('wrong-decorator-signature', rule, {
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'wrongDecoratorType' }],
     },
     {
+      code: createObjectType('@Field(() => [String])\nmyArray?: Array<string>'),
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'missingDecoratorNullableOption' }],
+    },
+    {
       code: createObjectType('@Field(() => String, { nullable: true })\nmyString!: string;'),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'superfluousDecoratorNullableOption' }],
     },
     {
+      code: createObjectType("@Field(() => [String], { nullable: 'items' })\nmyArray: Array<string>"),
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'superfluousDecoratorNullableOption' }],
+    },
+    {
+      code: createObjectType("@Field(() => [String], { nullable: 'itemsAndList' })\nmyArray: Array<string>"),
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'superfluousDecoratorNullableOption' }],
+    },
+    {
+      code: createObjectType('@Field(() => [String], { nullable: true })\nmyArray: Array<string>'),
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'superfluousDecoratorNullableOption' }],
+    },
+    {
       code: createObjectType('@Field(() => String)\nmyString!: string | null;'),
+      errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'missingDecoratorNullableOption' }],
+    },
+    {
+      code: createObjectType('@Field(() => String, { nullable: false })\nmyString?: string;'),
       errors: [{ ...DEFAULT_ERROR_LOCATION, messageId: 'missingDecoratorNullableOption' }],
     },
     {
